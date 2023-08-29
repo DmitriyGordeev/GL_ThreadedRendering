@@ -28,7 +28,7 @@ public:
     /* Stores execution of the main game loop */
     void gameLoop();
 
-
+    void renderFrame();
 
 protected:
     SDL_Window* m_Window;

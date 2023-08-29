@@ -6,6 +6,7 @@
 #include <SDL.h>
 
 #include <EngineCore.h>
+#include "TextureLoader.h"
 
 #undef main
 using std::cout;
@@ -14,9 +15,11 @@ using std::endl;
 
 int main(int argc, char** argv) {
 
-    EngineCore core;
-    core.createWindow(640, 480);
-    core.gameLoop();
+//    EngineCore core;
+//    core.createWindow(640, 480);
+//    core.gameLoop();
+
+    GLuint id = TextureLoader::loadTexture("../textures/box.png");
 
 
     return 0;

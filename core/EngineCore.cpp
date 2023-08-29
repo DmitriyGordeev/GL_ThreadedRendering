@@ -128,3 +128,18 @@ void EngineCore::gameLoop() {
 }
 
 
+void EngineCore::renderFrame() {
+//    glClearDepth(1.0f);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//    m_Shaders->use();   // todo: сделать как в webgl ?
+//
+//    glActiveTexture(GL_TEXTURE0);
+//
+//    // Get texture variable from shaders
+//    GLint textureLocation = m_Shaders->getUniformLocation("textureSampler");
+//    glUniform1i(textureLocation, 0);
+
+}
+
+
