@@ -40,7 +40,8 @@ void EngineCore::createWindow(int width, int height) {
 
     // Create shaders
     try {
-        m_Shaders->compile("", "");
+        // todo: ini файл со всеми путями? - передать в качестве аргумента?
+        m_Shaders->compile("../shaders/shader.vs", "../shaders/shader.ps");
         m_Shaders->addAttribute("vertexPosition");
         m_Shaders->addAttribute("vertexColor");
         m_Shaders->addAttribute("vertexUV");
