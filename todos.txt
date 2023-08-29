@@ -1,3 +1,4 @@
 1. logger -> file logger
-2. MACROS to alter cpp code
-3. TESTS
+2. Макросы для изменения кода
+3. ТЕСТЫ
+4. установка всего проекта(?) DLL к exe

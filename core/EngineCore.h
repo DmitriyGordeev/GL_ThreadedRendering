@@ -1,8 +1,9 @@
 #ifndef COLLIDERGAME_ENGINECORE_H
 #define COLLIDERGAME_ENGINECORE_H
+#include <memory>
 
 #include <SDL.h>
-#include <memory>
+#include <GLContext.h>
 
 class EngineCore {
 public:
@@ -13,6 +14,7 @@ public:
 
 protected:
     SDL_Window* m_Window;
+
 
 };
 

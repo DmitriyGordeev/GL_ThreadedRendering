@@ -1,8 +1,6 @@
 #include "EngineCore.h"
-#include <iostream>
 #include <GL/glew.h>
-using std::cout;            // todo: logger -> file logger
-using std::endl;
+
 
 EngineCore::EngineCore() {
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -22,19 +20,18 @@ void EngineCore::createWindow(int width, int height) {
         SDL_WINDOW_OPENGL);
 
     if (!m_Window)
-        cout << "Couldn't create window, SDL_CreateWindow() returned nullptr" << endl;
+        Logger::info("Couldn't create window, SDL_CreateWindow() returned nullptr");
 
+    // try to create and prepare context
+    try {
+        GLContext::createContext(m_Window);
+        GLContext::prepareCanvas();
+    }
+    catch(const std::exception& e) {
+        Logger::error(e.what());
+        return;
+    }
 
-    // Create OpenGL context and verify we can use OpenGL
-    SDL_GLContext glContext = SDL_GL_CreateContext(m_Window);
-    if (glContext == nullptr)
-        cout << "SDL GL context could not be created!" << endl;
-
-
-    // Init Glew
-    GLenum error = glewInit();
-    if (error != GLEW_OK)
-        cout << "Couldn't initialize glew" << endl;
 }
 
 
