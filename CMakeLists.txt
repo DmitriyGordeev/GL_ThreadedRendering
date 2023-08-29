@@ -5,7 +5,9 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 set(CMAKE_CXX_STANDARD 20)
 
 # 1. project sources and modules
-file(GLOB SRC core/*.cpp)
+file(GLOB SRC
+        core/*.cpp
+        utils/*.cpp)
 include_directories(core/)
 include_directories(utils/)
 
