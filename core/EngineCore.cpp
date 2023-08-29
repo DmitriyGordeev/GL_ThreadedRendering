@@ -8,6 +8,7 @@
 EngineCore::EngineCore() {
     SDL_Init(SDL_INIT_EVERYTHING);
     m_InputSystem = std::make_shared<InputSystem>();
+    m_Shaders = std::make_shared<Shaders>();
 }
 
 EngineCore::~EngineCore() {
@@ -35,6 +36,19 @@ void EngineCore::createWindow(int width, int height) {
     catch(const std::exception& e) {
         Logger::error(e.what());
         return; // todo: выдать result code (int) или throw ?
+    }
+
+    // Create shaders
+    try {
+        m_Shaders->compile("", "");
+        m_Shaders->addAttribute("vertexPosition");
+        m_Shaders->addAttribute("vertexColor");
+        m_Shaders->addAttribute("vertexUV");
+        m_Shaders->link();
+    }
+    catch(const std::exception& e) {
+        Logger::error(e.what());
+        m_GameStatus = GameState::EXIT;
     }
 }
 

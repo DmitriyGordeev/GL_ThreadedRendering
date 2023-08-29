@@ -7,6 +7,7 @@
 #include <SDL.h>
 #include <GLContext.h>
 #include "InputSystem.h"
+#include "Shaders.h"
 
 enum class GameState {RUNNING, EXIT};
 
@@ -27,11 +28,14 @@ public:
     /* Stores execution of the main game loop */
     void gameLoop();
 
+
+
 protected:
     SDL_Window* m_Window;
     std::shared_ptr<InputSystem> m_InputSystem;
     long long m_LastFrameTimeMillis {0};
     GameState m_GameStatus {GameState::RUNNING};
+    std::shared_ptr<Shaders> m_Shaders;
 };
 
 
