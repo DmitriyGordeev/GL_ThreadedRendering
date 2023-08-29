@@ -1,5 +1,6 @@
 #include "EngineCore.h"
 #include <GL/glew.h>
+#include <chrono>
 
 
 EngineCore::EngineCore() {
@@ -29,9 +30,22 @@ void EngineCore::createWindow(int width, int height) {
     }
     catch(const std::exception& e) {
         Logger::error(e.what());
-        return;
+        return; // todo: выдать result code (int) или throw ?
     }
+}
 
+
+void EngineCore::mainLoop() {
+    m_LastFrameTimeMillis = std::chrono::system_clock::now().time_since_epoch().count();
+    while(true) {
+        long long dt = std::chrono::system_clock::now().time_since_epoch().count()
+                - m_LastFrameTimeMillis;
+
+        // all work here
+
+
+        m_LastFrameTimeMillis = std::chrono::system_clock::now().time_since_epoch().count();
+    }
 }
 
 
