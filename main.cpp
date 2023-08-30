@@ -21,6 +21,5 @@ int main(int argc, char** argv) {
 
 //    GLuint id = TextureLoader::loadTexture("../textures/box.png");
 
-
     return 0;
 }

@@ -11,8 +11,6 @@ EngineCore::EngineCore() {
     m_InputSystem = std::make_shared<InputSystem>();
     m_Shaders = std::make_shared<Shaders>();
     m_Camera = std::make_shared<Camera>();
-
-//    m_Object = std::make_shared<Object>();
 }
 
 EngineCore::~EngineCore() {
@@ -22,7 +20,7 @@ EngineCore::~EngineCore() {
 
 void EngineCore::createWindow(int width, int height) {
     m_Window = SDL_CreateWindow(
-        "MyPhysics",
+        "Collider",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         width,
@@ -42,6 +40,12 @@ void EngineCore::createWindow(int width, int height) {
         return; // todo: выдать result code (int) или throw ?
     }
 
+
+    GLenum error = glewInit();
+    if (error != GLEW_OK)
+        throw std::runtime_error("could not initialize glew");
+
+
     // Create shaders
     try {
         // todo: ini файл со всеми путями? - передать в качестве аргумента?
@@ -55,6 +59,18 @@ void EngineCore::createWindow(int width, int height) {
         Logger::error(e.what());
         m_GameStatus = GameState::EXIT;
     }
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+    //Enable Alpha Blend
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    //Anti-Aliasing:
+    glEnable(GL_MULTISAMPLE);
+
+
+    m_Object = std::make_shared<Object>();
 }
 
 
@@ -131,6 +147,8 @@ void EngineCore::gameLoop() {
 
         m_LastFrameTimeMillis = std::chrono::system_clock::now().time_since_epoch().count();
     }
+
+    int a = 1000;
 }
 
 

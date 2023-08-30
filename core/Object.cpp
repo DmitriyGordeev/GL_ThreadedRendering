@@ -76,7 +76,7 @@ void Object::buildBuffers() {
     }
 
     // 3. Create indices to define winding order
-//    int vertexIndices[] = {3, 0, 1, 1, 2, 3};
+    m_Indices = new int[6];
     m_Indices[0] = 3;
     m_Indices[1] = 0;
     m_Indices[2] = 1;

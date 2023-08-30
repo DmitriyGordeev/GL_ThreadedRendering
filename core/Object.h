@@ -34,8 +34,8 @@ protected:
     glm::vec2 m_Position {0.0f, 0.0f};
     glm::vec2 m_WorldSize {1.0f, 1.0f};
 
-    Vertex* m_Geometry;     // todo: smart ptr ?
-    int* m_Indices;         // todo: smart ptr ?
+    Vertex* m_Geometry{nullptr};     // todo: smart ptr ?
+    int* m_Indices{nullptr};         // todo: smart ptr ?
 };
 
 
