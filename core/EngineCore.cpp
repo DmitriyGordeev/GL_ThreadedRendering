@@ -101,8 +101,8 @@ void EngineCore::createWindow(int width, int height) {
     }
     if(ibo == 0) {
         glGenBuffers(1, &ibo);
-        glBindBuffer(GL_INDEX_ARRAY, ibo);
-        glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(int), indices, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), indices, GL_STATIC_DRAW);
     }
 //    glBindVertexArray(0);
 //    glBindBuffer(GL_ARRAY_BUFFER, 0);

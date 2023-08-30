@@ -90,10 +90,10 @@ int main() {
 
     // =============================================================================================
     float vertices[] = {
-            0.5f,  0.5f, 0.0f,  // top right
-            0.5f, -0.5f, 0.0f,  // bottom right
-            -0.5f, -0.5f, 0.0f,  // bottom left
-            -0.5f,  0.5f, 0.0f   // top left
+            1.0f,  1.0f,  // top right
+            0.5f, -0.5f,  // bottom right
+            -0.5f, -0.5f,  // bottom left
+            -0.5f,  0.5f   // top left
     };
     unsigned int indices[] = {  // note that we start from 0!
             0, 1, 3,  // first Triangle
@@ -113,17 +113,9 @@ int main() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     GLuint posAttr = glGetAttribLocation(shaders.getShaderProgramId(), "vertexPosition");
-    glVertexAttribPointer(posAttr, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr);
+    glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)nullptr);
     glEnableVertexAttribArray(posAttr);
 
-
-//    glBindVertexArray(VAO);
-//    GLuint shaderID = shaders.getShaderProgramId();
-//    GLuint posAttr = glGetAttribLocation(shaderID, "vertexPosition");
-//    glVertexAttribPointer(posAttr, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr);
-//    glEnableVertexAttribArray(posAttr);
-//    glBindVertexArray(0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     while(gameState != GameState::EXIT) {
         inputSystem();
