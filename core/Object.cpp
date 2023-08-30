@@ -2,7 +2,7 @@
 #include "Vertex.h"
 
 Object::Object() {
-
+    createGeometry();
 }
 
 Object::~Object() {
@@ -109,16 +109,16 @@ void Object::applyShader(GLuint shaderProgramID) {
     glBindBuffer(GL_ARRAY_BUFFER, m_VboID);
 
     // let know opengl how position values are layout inside Vertex* m_Geometry bytes
-    m_PosAttribID = glGetAttribLocation(shaderProgramID, "coordinates");
+    m_PosAttribID = glGetAttribLocation(shaderProgramID, "vertexPosition");
     // second arg 2 because we draw in 2D space - for 3D need to replace with 3
     glVertexAttribPointer(m_PosAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
 
     // color attributes
-    m_ColorAttribID = glGetAttribLocation(shaderProgramID, "color");
+    m_ColorAttribID = glGetAttribLocation(shaderProgramID, "vertexColor");
     glVertexAttribPointer(m_ColorAttribID, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
     // uv atrributes
-    m_UVAttribID = glGetAttribLocation(shaderProgramID, "uv");
+    m_UVAttribID = glGetAttribLocation(shaderProgramID, "vertexUV");
     glVertexAttribPointer(m_UVAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

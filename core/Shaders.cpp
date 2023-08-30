@@ -90,9 +90,9 @@ void Shaders::use() const
     // Using shader
     glUseProgram(m_ShaderProgramID);
 
-    // Enable each bound vertex attribute
-    for (int i = 0; i < m_NumAttributes; i++)
-        glEnableVertexAttribArray(i);
+//    // Enable each bound vertex attribute
+//    for (int i = 0; i < m_NumAttributes; i++)
+//        glEnableVertexAttribArray(i);
 }
 
 void Shaders::disable() const
@@ -100,9 +100,9 @@ void Shaders::disable() const
     // Stop using program
     glUseProgram(0);
 
-    // Disable each bound vertex attribute
-    for (int i = 0; i < m_NumAttributes; i++)
-        glDisableVertexAttribArray(i);
+//    // Disable each bound vertex attribute
+//    for (int i = 0; i < m_NumAttributes; i++)
+//        glDisableVertexAttribArray(i);
 }
 
 void Shaders::compileSingleShader(const std::string& shaderFilename, GLuint id)

@@ -18,6 +18,8 @@ public:
     void use() const;
     void disable() const;
 
+    [[nodiscard]] GLuint getShaderProgramId() const { return m_ShaderProgramID; }
+
 protected:
     static void compileSingleShader(const std::string& shaderFilename, GLuint id);
 

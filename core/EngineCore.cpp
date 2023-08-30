@@ -1,15 +1,18 @@
-#include "EngineCore.h"
-#include <GL/glew.h>
+
 #include <chrono>
 #include <sstream>
 #include <thread>
 
+#include "EngineCore.h"
+#include "Object.h"
 
 EngineCore::EngineCore() {
     SDL_Init(SDL_INIT_EVERYTHING);
     m_InputSystem = std::make_shared<InputSystem>();
     m_Shaders = std::make_shared<Shaders>();
     m_Camera = std::make_shared<Camera>();
+
+//    m_Object = std::make_shared<Object>();
 }
 
 EngineCore::~EngineCore() {
@@ -42,10 +45,10 @@ void EngineCore::createWindow(int width, int height) {
     // Create shaders
     try {
         // todo: ini файл со всеми путями? - передать в качестве аргумента?
-        m_Shaders->compile("../shaders/shader.vs", "../shaders/shader.ps");
-        m_Shaders->addAttribute("vertexPosition");
-        m_Shaders->addAttribute("vertexColor");
-        m_Shaders->addAttribute("vertexUV");
+        m_Shaders->compile("../shaders/shader.vs", "../shaders/shader.fs");
+//        m_Shaders->addAttribute("vertexPosition");
+//        m_Shaders->addAttribute("vertexColor");
+//        m_Shaders->addAttribute("vertexUV");
         m_Shaders->link();
     }
     catch(const std::exception& e) {
@@ -121,6 +124,7 @@ void EngineCore::gameLoop() {
 
         updateInputSystem();
         m_Camera->update();
+//        renderFrame();
 
         // todo: если на сцене происходит много всего, то этот блок не имеет смысла
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
@@ -136,7 +140,6 @@ void EngineCore::renderFrame() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_Shaders->use();   // todo: сделать как в webgl ?
-
     glActiveTexture(GL_TEXTURE0);
 
     // Get texture variable from shaders
@@ -154,6 +157,10 @@ void EngineCore::renderFrame() {
 //    _scene->draw();
 //    _objectsGroup.post();
 //    _objectsGroup.renderGroup();
+
+//    m_Object->applyShader(m_Shaders->getShaderProgramId());
+//    m_Object->render(m_Shaders->getShaderProgramId());
+
 
     glBindTexture(GL_TEXTURE_2D, 0);
     m_Shaders->disable();   // todo: ?

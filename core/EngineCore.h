@@ -9,6 +9,7 @@
 #include "InputSystem.h"
 #include "Shaders.h"
 #include "Camera.h"
+#include "Object.h"
 
 enum class GameState {RUNNING, EXIT};
 
@@ -38,6 +39,8 @@ protected:
     GameState m_GameStatus {GameState::RUNNING};
     std::shared_ptr<Shaders> m_Shaders;
     std::shared_ptr<Camera> m_Camera;
+
+    std::shared_ptr<Object> m_Object;
 };
 
 
