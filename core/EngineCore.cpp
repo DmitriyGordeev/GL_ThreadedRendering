@@ -33,7 +33,7 @@ void EngineCore::createWindow(int width, int height) {
     // try to create and prepare context
     try {
         GLContext::createContext(m_Window);
-        GLContext::prepareCanvas();
+//        GLContext::prepareCanvas();
     }
     catch(const std::exception& e) {
         Logger::error(e.what());
@@ -59,9 +59,9 @@ void EngineCore::createWindow(int width, int height) {
 
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-//    //  Enable Alpha Blend
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //  Enable Alpha Blend
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //  Anti-Aliasing:
     glEnable(GL_MULTISAMPLE);
@@ -71,8 +71,63 @@ void EngineCore::createWindow(int width, int height) {
 
     // TODO: prepare scene()
     m_Camera->init(width, height);
-    m_Object = std::make_shared<Object>();
-    m_Object->applyShader(m_Shaders->getShaderProgramId());
+//    m_Object = std::make_shared<Object>();
+//    m_Object->applyShader(m_Shaders->getShaderProgramId());
+
+
+    // TRIANGLE -----------------------------------------------------
+    data = new Vertex[3];
+    data[0].pos.x = -1.0f;
+    data[0].pos.y = 0.0f;
+    data[1].pos.x = 1.0f;
+    data[1].pos.y = 0.0f;
+    data[2].pos.x = 0.0f;
+    data[2].pos.y = 1.0f;
+    data[0].color.r = 1.0f;
+
+    indices = new int[3];
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+
+    if (vao == 0) {
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+    }
+    if(vbo == 0) {
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), data, GL_STATIC_DRAW);
+    }
+    if(ibo == 0) {
+        glGenBuffers(1, &ibo);
+        glBindBuffer(GL_INDEX_ARRAY, ibo);
+        glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(int), indices, GL_STATIC_DRAW);
+    }
+//    glBindVertexArray(0);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindBuffer(GL_INDEX_ARRAY, 0);
+
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    GLuint shaderID = m_Shaders->getShaderProgramId();
+    glUseProgram(shaderID);
+
+    // let know opengl how position values are layout inside Vertex* m_Geometry bytes
+    posAttr = glGetAttribLocation(shaderID, "vertexPosition");
+    // second arg 2 because we draw in 2D space - for 3D need to replace with 3
+
+    glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
+
+    // color attributes
+    colAttr = glGetAttribLocation(shaderID, "vertexColor");
+    glVertexAttribPointer(colAttr, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+
+    // uv atrributes
+    uvAttr = glGetAttribLocation(shaderID, "vertexUV");
+    glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 
@@ -160,15 +215,26 @@ void EngineCore::renderFrame() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-    // Update MVP matrix value of the shader's uniform
-    GLint pLocation = m_Shaders->getUniformLocation("P");
-    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
-    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+    glBindVertexArray(vao);
+    glUseProgram(m_Shaders->getShaderProgramId());
+
+    // enable shader attributes
+    glEnableVertexAttribArray(posAttr);
+    glEnableVertexAttribArray(colAttr);
+    glEnableVertexAttribArray(uvAttr);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, indices);
+
+    // enable shader attributes
+    glDisableVertexAttribArray(posAttr);
+    glDisableVertexAttribArray(colAttr);
+    glDisableVertexAttribArray(uvAttr);
 
 
-    m_Object->render(m_Shaders->getShaderProgramId());
-
-
+//    // Update MVP matrix value of the shader's uniform
+//    GLint pLocation = m_Shaders->getUniformLocation("P");
+//    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
+//    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
 
 //    m_Shaders->use();   // todo: сделать как в webgl ?
 ////    glActiveTexture(GL_TEXTURE0);
@@ -196,6 +262,12 @@ void EngineCore::renderFrame() {
 //
 ////    glBindTexture(GL_TEXTURE_2D, 0);
 ////    m_Shaders->disable();   // todo: ?
+
+
+
+
+
+
 
     // swap buffers and draw everything on the screen
     SDL_GL_SwapWindow(m_Window);

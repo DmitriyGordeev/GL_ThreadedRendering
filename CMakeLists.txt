@@ -34,3 +34,16 @@ target_link_libraries(ColliderGame
         SDL2main.lib
         glew32.lib
         glew32s.lib)
+
+
+# ========== TEST SETUP ===============
+add_executable(TestGL gl_test.cpp
+        core/Shaders.cpp
+        core/Logger.cpp
+        core/Camera.cpp)
+target_link_libraries(TestGL
+        ${OPENGL_LIBRARIES}
+        SDL2.lib
+        SDL2main.lib
+        glew32.lib
+        glew32s.lib)

@@ -32,6 +32,18 @@ public:
 
     void renderFrame();
 
+
+
+    GLuint vao;
+    GLuint vbo;
+    GLuint ibo;
+    Vertex* data;
+    int* indices;
+    GLuint posAttr;
+    GLuint colAttr;
+    GLuint uvAttr;
+
+
 protected:
     SDL_Window* m_Window;
     std::shared_ptr<InputSystem> m_InputSystem;

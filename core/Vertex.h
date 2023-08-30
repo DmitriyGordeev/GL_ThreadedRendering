@@ -4,20 +4,20 @@
 #include <gl/glew.h>
 
 struct Pos {
-    float x;
-    float y;
+    float x {0.0f};
+    float y {0.0f};
 };
 
 struct Color {
-    GLubyte r;
-    GLubyte g;
-    GLubyte b;
-    GLubyte a;
+    GLubyte r {0};
+    GLubyte g {0};
+    GLubyte b {0};
+    GLubyte a {255};
 };
 
 struct UV {
-    float u;
-    float v;
+    float u {0.0f};
+    float v {0.0f};
 };
 
 struct Vertex {
