@@ -9,6 +9,7 @@ EngineCore::EngineCore() {
     SDL_Init(SDL_INIT_EVERYTHING);
     m_InputSystem = std::make_shared<InputSystem>();
     m_Shaders = std::make_shared<Shaders>();
+    m_Camera = std::make_shared<Camera>();
 }
 
 EngineCore::~EngineCore() {
@@ -119,6 +120,7 @@ void EngineCore::gameLoop() {
 
 
         updateInputSystem();
+        m_Camera->update();
 
         // todo: если на сцене происходит много всего, то этот блок не имеет смысла
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
@@ -129,16 +131,35 @@ void EngineCore::gameLoop() {
 
 
 void EngineCore::renderFrame() {
-//    glClearDepth(1.0f);
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//    m_Shaders->use();   // todo: сделать как в webgl ?
-//
-//    glActiveTexture(GL_TEXTURE0);
-//
-//    // Get texture variable from shaders
-//    GLint textureLocation = m_Shaders->getUniformLocation("textureSampler");
-//    glUniform1i(textureLocation, 0);
+
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    m_Shaders->use();   // todo: сделать как в webgl ?
+
+    glActiveTexture(GL_TEXTURE0);
+
+    // Get texture variable from shaders
+    GLint textureLocation = m_Shaders->getUniformLocation("textureSampler");
+    glUniform1i(textureLocation, 0);
+
+    // Update MVP matrix value of the shader's uniform
+    GLint pLocation = m_Shaders->getUniformLocation("P");
+    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
+    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+
+//    // Draws all figures
+//    TODO: Actor class, у которого есть свои VBO, VAO - взять из webgl
+//    _objectsGroup.cleanUp();
+//    _scene->draw();
+//    _objectsGroup.post();
+//    _objectsGroup.renderGroup();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    m_Shaders->disable();   // todo: ?
+
+    //swap buffers and draw everything on the screen
+    SDL_GL_SwapWindow(m_Window);
 
 }
 

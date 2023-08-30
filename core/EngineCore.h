@@ -8,6 +8,7 @@
 #include <GLContext.h>
 #include "InputSystem.h"
 #include "Shaders.h"
+#include "Camera.h"
 
 enum class GameState {RUNNING, EXIT};
 
@@ -36,6 +37,7 @@ protected:
     long long m_LastFrameTimeMillis {0};
     GameState m_GameStatus {GameState::RUNNING};
     std::shared_ptr<Shaders> m_Shaders;
+    std::shared_ptr<Camera> m_Camera;
 };
 
 
