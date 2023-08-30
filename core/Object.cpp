@@ -86,8 +86,8 @@ void Object::buildBuffers() {
 
     if(m_IboID == 0) {
         glGenBuffers(1, &m_IboID);
-        glBindBuffer(GL_INDEX_ARRAY, m_IboID);
-        glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(int), m_Indices, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IboID);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), m_Indices, GL_STATIC_DRAW);
     }
 
     // 4. Unbind buffers - mark that we've done everything we want with
@@ -96,7 +96,7 @@ void Object::buildBuffers() {
     // our data (m_Geometry, indices, ...) invisible for OpenGL's internal state
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_INDEX_ARRAY, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Object::applyShader(GLuint shaderProgramID) {
@@ -111,7 +111,6 @@ void Object::applyShader(GLuint shaderProgramID) {
     // let know opengl how position values are layout inside Vertex* m_Geometry bytes
     m_PosAttribID = glGetAttribLocation(shaderProgramID, "vertexPosition");
     // second arg 2 because we draw in 2D space - for 3D need to replace with 3
-
     glVertexAttribPointer(m_PosAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
 
     // color attributes
