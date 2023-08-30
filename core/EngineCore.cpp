@@ -148,6 +148,7 @@ void EngineCore::gameLoop() {
         // todo: если на сцене происходит много всего, то этот блок не имеет смысла
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
 
+        // should be executed at the end of the loop
         m_LastFrameTimeMillis = std::chrono::system_clock::now().time_since_epoch().count();
     }
 }
@@ -196,7 +197,7 @@ void EngineCore::renderFrame() {
 ////    glBindTexture(GL_TEXTURE_2D, 0);
 ////    m_Shaders->disable();   // todo: ?
 
-    //swap buffers and draw everything on the screen
+    // swap buffers and draw everything on the screen
     SDL_GL_SwapWindow(m_Window);
 
 }
