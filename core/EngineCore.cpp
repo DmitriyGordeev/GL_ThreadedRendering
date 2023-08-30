@@ -50,9 +50,6 @@ void EngineCore::createWindow(int width, int height) {
     try {
         // todo: ini файл со всеми путями? - передать в качестве аргумента?
         m_Shaders->compile("../shaders/shader.vs", "../shaders/shader.fs");
-//        m_Shaders->addAttribute("vertexPosition");
-//        m_Shaders->addAttribute("vertexColor");
-//        m_Shaders->addAttribute("vertexUV");
         m_Shaders->link();
     }
     catch(const std::exception& e) {
@@ -62,15 +59,20 @@ void EngineCore::createWindow(int width, int height) {
 
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-    //Enable Alpha Blend
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    //  Enable Alpha Blend
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    //Anti-Aliasing:
+    //  Anti-Aliasing:
     glEnable(GL_MULTISAMPLE);
 
 
+
+
+    // TODO: prepare scene()
+    m_Camera->init(width, height);
     m_Object = std::make_shared<Object>();
+    m_Object->applyShader(m_Shaders->getShaderProgramId());
 }
 
 
@@ -140,15 +142,14 @@ void EngineCore::gameLoop() {
 
         updateInputSystem();
         m_Camera->update();
-//        renderFrame();
+
+        renderFrame();
 
         // todo: если на сцене происходит много всего, то этот блок не имеет смысла
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
 
         m_LastFrameTimeMillis = std::chrono::system_clock::now().time_since_epoch().count();
     }
-
-    int a = 1000;
 }
 
 
@@ -157,31 +158,43 @@ void EngineCore::renderFrame() {
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_Shaders->use();   // todo: сделать как в webgl ?
-    glActiveTexture(GL_TEXTURE0);
-
-    // Get texture variable from shaders
-    GLint textureLocation = m_Shaders->getUniformLocation("textureSampler");
-    glUniform1i(textureLocation, 0);
 
     // Update MVP matrix value of the shader's uniform
     GLint pLocation = m_Shaders->getUniformLocation("P");
     glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
     glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
 
-//    // Draws all figures
-//    TODO: Actor class, у которого есть свои VBO, VAO - взять из webgl
-//    _objectsGroup.cleanUp();
-//    _scene->draw();
-//    _objectsGroup.post();
-//    _objectsGroup.renderGroup();
 
+    m_Object->render(m_Shaders->getShaderProgramId());
+
+
+
+//    m_Shaders->use();   // todo: сделать как в webgl ?
+////    glActiveTexture(GL_TEXTURE0);
+//
+////    // Get texture variable from shaders
+////    GLint textureLocation = m_Shaders->getUniformLocation("textureSampler");
+////    glUniform1i(textureLocation, 0);
+//
+//    // Update MVP matrix value of the shader's uniform
+//    GLint pLocation = m_Shaders->getUniformLocation("P");
+//    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
+//    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+//
+////    // Draws all figures
+////    TODO: Actor class, у которого есть свои VBO, VAO - взять из webgl
+////    _objectsGroup.cleanUp();
+////    _scene->draw();
+////    _objectsGroup.post();
+////    _objectsGroup.renderGroup();
+//
+//
 //    m_Object->applyShader(m_Shaders->getShaderProgramId());
 //    m_Object->render(m_Shaders->getShaderProgramId());
-
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    m_Shaders->disable();   // todo: ?
+//
+//
+////    glBindTexture(GL_TEXTURE_2D, 0);
+////    m_Shaders->disable();   // todo: ?
 
     //swap buffers and draw everything on the screen
     SDL_GL_SwapWindow(m_Window);

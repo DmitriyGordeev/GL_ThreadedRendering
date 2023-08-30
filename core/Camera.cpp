@@ -6,7 +6,7 @@ Camera::Camera() : m_NeedMatrixUpdate(true),
                    m_Pos(0.0f, 0.0f),
                    m_CameraMatrix(1.0f),
                    m_OrthMatrix(1.0f),
-                   m_ScreenWidth(640),
+                   m_ScreenWidth(640),          // todo: feed width and height from window object
                    m_ScreenHeight(480) {}
 
 Camera::~Camera() = default;
