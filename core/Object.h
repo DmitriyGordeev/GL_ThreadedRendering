@@ -32,7 +32,7 @@ protected:
 //    GLuint m_TextureID {0};
 
     glm::vec2 m_Position {0.0f, 0.0f};
-    glm::vec2 m_WorldSize {1.0f, 1.0f};
+    glm::vec2 m_WorldSize {100.0f, 100.0f};
 
     Vertex* m_Geometry{nullptr};     // todo: smart ptr ?
     int* m_Indices{nullptr};         // todo: smart ptr ?

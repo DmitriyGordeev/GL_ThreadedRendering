@@ -2,7 +2,7 @@
 #include <gtc\matrix_transform.hpp>
 
 Camera::Camera() : m_NeedMatrixUpdate(true),
-                   m_Scale(0.3f),
+                   m_Scale(1.0f),
                    m_Pos(0.0f, 0.0f),
                    m_CameraMatrix(1.0f),
                    m_OrthMatrix(1.0f),
@@ -18,7 +18,6 @@ void Camera::init(int screenWidth, int screenHeight) {
                               (float) m_ScreenWidth,
                               0.0f,
                               (float) m_ScreenHeight);
-
 }
 
 void Camera::update() {

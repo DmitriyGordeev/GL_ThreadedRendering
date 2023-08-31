@@ -90,10 +90,10 @@ void Object::buildBuffers() {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), m_Indices, GL_STATIC_DRAW);
     }
 
-//    // 4. Unbind buffers - mark that we've done everything we want with
-//    // binding points (vertex array, GL_ARRAY_BUFFER, GL_INDEX_BUFFER)
-//    // and detach, making further changes with
-//    // our data (m_Geometry, indices, ...) invisible for OpenGL's internal state
+    // 4. Unbind buffers - mark that we've done everything we want with
+    // binding points (vertex array, GL_ARRAY_BUFFER, GL_INDEX_BUFFER)
+    // and detach, making further changes with
+    // our data (m_Geometry, indices, ...) invisible for OpenGL's internal state
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -125,25 +125,15 @@ void Object::applyShader(GLuint shaderProgramID) {
     glVertexAttribPointer(m_UVAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
     glEnableVertexAttribArray(m_UVAttribID);
 
+    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Object::render(GLuint shaderProgramID) {
-    glUseProgram(shaderProgramID);
+    // glUseProgram(shaderProgramID);
     glBindVertexArray(m_VaoID);
-
-//    // enable shader attributes
-//    glEnableVertexAttribArray(m_PosAttribID);
-//    glEnableVertexAttribArray(m_ColorAttribID);
-//    glEnableVertexAttribArray(m_UVAttribID);
-
-    // setTextureUniform();
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-//    // disable vertex attributes
-//    glDisableVertexAttribArray(m_PosAttribID);
-//    glDisableVertexAttribArray(m_ColorAttribID);
-//    glDisableVertexAttribArray(m_UVAttribID);
     glBindVertexArray(0);
 }

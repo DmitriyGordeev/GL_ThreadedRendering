@@ -33,18 +33,17 @@ void EngineCore::createWindow(int width, int height) {
     // try to create and prepare context
     try {
         GLContext::createContext(m_Window);
-//        GLContext::prepareCanvas();
     }
     catch(const std::exception& e) {
         Logger::error(e.what());
-        return; // todo: выдать result code (int) или throw ?
+        m_GameStatus = GameState::EXIT;
     }
 
-
     GLenum error = glewInit();
-    if (error != GLEW_OK)
-        throw std::runtime_error("could not initialize glew");
-
+    if (error != GLEW_OK) {
+        Logger::error("Could not initialize glew");
+        m_GameStatus = GameState::EXIT;
+    }
 
     // Create shaders
     try {
@@ -57,6 +56,7 @@ void EngineCore::createWindow(int width, int height) {
         m_GameStatus = GameState::EXIT;
     }
 
+    // TODO: prepare scene() -----------------------------------------------
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     //  Enable Alpha Blend
@@ -66,100 +66,9 @@ void EngineCore::createWindow(int width, int height) {
     //  Anti-Aliasing:
     glEnable(GL_MULTISAMPLE);
 
-
-    // TODO: prepare scene()
-
     m_Camera->init(width, height);
     m_Object = std::make_shared<Object>();
     m_Object->applyShader(m_Shaders->getShaderProgramId());
-
-
-//    // Manual check -----------------------------------------------------
-//    Vertex* m_Geometry = new Vertex[4];
-//    glm::vec2 m_Position = {0.0f, 0.0f};
-//    glm::vec2 m_WorldSize = {1.0f, 1.0f};
-//
-//    // top left
-//    m_Geometry[0].pos.x = m_Position.x - m_WorldSize.x / 2.0f;
-//    m_Geometry[0].pos.y = m_Position.y + m_WorldSize.y / 2.0f;
-//    m_Geometry[0].color.r = 0;
-//    m_Geometry[0].color.g = 20;
-//    m_Geometry[0].color.b = 0;
-//    m_Geometry[0].uv.u = 0.0f;
-//    m_Geometry[0].uv.v = 1.0f;
-//
-//    // bottom left
-//    m_Geometry[1].pos.x = m_Position.x - m_WorldSize.x / 2.0f;
-//    m_Geometry[1].pos.y = m_Position.y - m_WorldSize.y / 2.0f;
-//    m_Geometry[1].color.r = 255;
-//    m_Geometry[1].color.g = 255;
-//    m_Geometry[1].color.b = 255;
-//    m_Geometry[1].uv.u = 1.0f;
-//    m_Geometry[1].uv.v = 1.0f;
-//
-//    // bottom right
-//    m_Geometry[2].pos.x = m_Position.x + m_WorldSize.x / 2.0f;
-//    m_Geometry[2].pos.y = m_Position.y - m_WorldSize.y / 2.0f;
-//    m_Geometry[2].color.r = 255;
-//    m_Geometry[2].color.g = 255;
-//    m_Geometry[2].color.b = 255;
-//    m_Geometry[2].uv.u = 1.0f;
-//    m_Geometry[2].uv.v = 0.0f;
-//
-//    // top right
-//    m_Geometry[3].pos.x = m_Position.x + m_WorldSize.x / 2.0f + 0.1f;
-//    m_Geometry[3].pos.y = m_Position.y + m_WorldSize.y / 2.0f;
-//    m_Geometry[3].color.r = 255;
-//    m_Geometry[3].color.g = 255;
-//    m_Geometry[3].color.b = 255;
-//    m_Geometry[3].uv.u = 0.0f;
-//    m_Geometry[3].uv.v = 0.0f;
-//
-//    int* indices = new int[6];
-//    indices[0] = 3;
-//    indices[1] = 0;
-//    indices[2] = 1;
-//    indices[3] = 1;
-//    indices[4] = 2;
-//    indices[5] = 3;
-//
-//    if (vao == 0) {
-//        glGenVertexArrays(1, &vao);
-//        glBindVertexArray(vao);
-//    }
-//    if(vbo == 0) {
-//        glGenBuffers(1, &vbo);
-//        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), m_Geometry, GL_STATIC_DRAW);
-//    }
-//    if(ibo == 0) {
-//        glGenBuffers(1, &ibo);
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), indices, GL_STATIC_DRAW);
-//    }
-//
-//
-////    glBindVertexArray(0);
-////    glBindBuffer(GL_ARRAY_BUFFER, 0);
-////    glBindBuffer(GL_INDEX_ARRAY, 0);
-//
-//
-//    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//    GLuint shaderID = m_Shaders->getShaderProgramId();
-//    glUseProgram(shaderID);
-//
-//    posAttr = glGetAttribLocation(shaderID, "vertexPosition");
-//    glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-//    glEnableVertexAttribArray(posAttr);
-//
-//    colAttr = glGetAttribLocation(shaderID, "vertexColor");
-//    glVertexAttribPointer(colAttr, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)8);
-//    glEnableVertexAttribArray(colAttr);
-//
-//    uvAttr = glGetAttribLocation(shaderID, "vertexUV");
-//    glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
-//    glEnableVertexAttribArray(uvAttr);
-
 }
 
 
@@ -212,8 +121,40 @@ void EngineCore::updateInputSystem() {
 
 
 void EngineCore::handleKeyBindings() {
+//    if (m_InputSystem->isKeyPressed(SDLK_w)) {
+//        Logger::info("W pressed");
+//    }
+
+    float CamSpeed = 5.0f;
+    float ScaleSpeed = 0.02f;
+
     if (m_InputSystem->isKeyPressed(SDLK_w)) {
-        Logger::info("W pressed");
+        m_Camera->setPosition(m_Camera->getPos() + glm::vec2(0.0, CamSpeed));
+        Logger::info("keyboard W");
+    }
+
+    if (m_InputSystem->isKeyPressed(SDLK_s))
+        m_Camera->setPosition(m_Camera->getPos() + glm::vec2(0.0, -CamSpeed));
+
+    if (m_InputSystem->isKeyPressed(SDLK_a))
+        m_Camera->setPosition(m_Camera->getPos() + glm::vec2(-CamSpeed, 0.0));
+
+    if (m_InputSystem->isKeyPressed(SDLK_d))
+        m_Camera->setPosition(m_Camera->getPos() + glm::vec2(CamSpeed, 0.0));
+
+    if (m_InputSystem->isKeyPressed(SDLK_q))
+        m_Camera->setScale(m_Camera->getScale() - ScaleSpeed);
+
+    if (m_InputSystem->isKeyPressed(SDLK_e))
+        m_Camera->setScale(m_Camera->getScale() + ScaleSpeed);
+
+    if (m_InputSystem->isKeyPressed(SDL_BUTTON_LEFT))
+    {
+        glm::vec2 mouseCoords = m_InputSystem->getMouseCoords();
+        m_Camera->toWorld(mouseCoords);
+        Logger::info(
+                "click x = " + std::to_string(mouseCoords.x) +
+                " click y = " + std::to_string(mouseCoords.y));
     }
 }
 
@@ -243,6 +184,14 @@ void EngineCore::renderFrame() {
 
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glUseProgram(m_Shaders->getShaderProgramId());
+
+    // Update MVP matrix value of the shader's uniform
+    GLint pLocation = m_Shaders->getUniformLocation("P");
+    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
+    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+
 
     m_Object->render(m_Shaders->getShaderProgramId());
 
