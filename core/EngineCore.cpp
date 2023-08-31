@@ -69,7 +69,7 @@ void EngineCore::createWindow(int width, int height) {
 
     m_Camera->init(width, height);
     m_Object = std::make_shared<Object>();
-    m_Object->applyShader(m_Shaders->getShaderProgramId());
+    m_Object->applyShader(m_Shaders);
 }
 
 
@@ -186,15 +186,14 @@ void EngineCore::renderFrame() {
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(m_Shaders->getShaderProgramId());
-
+    // todo: updateUniformsForAllShaders();
     // Update MVP matrix value of the shader's uniform
     GLint pLocation = m_Shaders->getUniformLocation("P");
     glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
     glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
 
 
-    m_Object->render(m_Shaders->getShaderProgramId());
+    m_Object->render();
 
 
 //    glUseProgram(m_Shaders->getShaderProgramId());

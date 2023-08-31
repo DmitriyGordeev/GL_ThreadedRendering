@@ -4,6 +4,8 @@
 #include <gl/glew.h>
 #include <glm.hpp>
 #include "Vertex.h"
+#include "Shaders.h"
+#include <memory>
 
 class Object {
 public:
@@ -13,9 +15,9 @@ public:
 
     void createGeometry();
 
-    void applyShader(GLuint shaderProgramID);
+    void applyShader(const std::shared_ptr<Shaders>& shader);
 
-    void render(GLuint shaderProgramID);
+    void render();
 
 protected:
     void buildBuffers();
@@ -32,6 +34,9 @@ protected:
 
     Vertex* m_Geometry{nullptr};     // todo: smart ptr ?
     int* m_Indices{nullptr};         // todo: smart ptr ?
+
+    /* current object's associated material */
+    std::weak_ptr<Shaders> m_ShaderRef;
 };
 
 

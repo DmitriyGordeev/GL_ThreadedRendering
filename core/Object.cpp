@@ -1,5 +1,6 @@
 #include "Object.h"
 #include "Vertex.h"
+#include "Logger.h"
 
 Object::Object() {
     createGeometry();
@@ -99,40 +100,45 @@ void Object::buildBuffers() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Object::applyShader(GLuint shaderProgramID) {
-    if (shaderProgramID == 0) {
-        // todo: logger ? throw ?
+void Object::applyShader(const std::shared_ptr<Shaders>& shader) {
+    if (!shader) {
+        Logger::info("Object::applyShader() shader is nullptr");
         return;
     }
 
+    if (shader->getShaderProgramId() == 0) {
+        Logger::info("Object::applyShader() shader program ID = 0");
+        return;
+    }
+
+    // if shader's attributes has been initialized before
+    if (shader->getPositionAttrID() != -1 ||
+        shader->getColorAttributeID() != -1 ||
+        shader->getUVAttributeID() != -1) {
+        return;
+    }
+
+    // Save reference to associated material for this object
+    m_ShaderRef = shader;
+
     glBindVertexArray(m_VaoID);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VboID);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VboID); // обязательно?
 
-    // let know opengl how position values are layout inside Vertex* m_Geometry bytes
-    auto m_PosAttribID = glGetAttribLocation(shaderProgramID, "vertexPosition");
-    // second arg 2 because we draw in 2D space - for 3D need to replace with 3
-    glVertexAttribPointer(m_PosAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-    glEnableVertexAttribArray(m_PosAttribID);
-
-    // color attributes
-    auto m_ColorAttribID = glGetAttribLocation(shaderProgramID, "vertexColor");
-    glVertexAttribPointer(m_ColorAttribID, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)8);
-    glEnableVertexAttribArray(m_ColorAttribID);
-
-    // uv atrributes
-    auto m_UVAttribID = glGetAttribLocation(shaderProgramID, "vertexUV");
-    glVertexAttribPointer(m_UVAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
-    glEnableVertexAttribArray(m_UVAttribID);
+    shader->setupAttributes();
 
     glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);       // обязательно?
 }
 
-void Object::render(GLuint shaderProgramID) {
-    // glUseProgram(shaderProgramID);
-    glBindVertexArray(m_VaoID);
+void Object::render() {
+    if (!m_ShaderRef.lock()) {
+        Logger::info("Object::render() - shader is null");
+        return;
+    }
 
+    glUseProgram(m_ShaderRef.lock()->getShaderProgramId());
+    glBindVertexArray(m_VaoID);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
     glBindVertexArray(0);
 }
+

@@ -21,6 +21,10 @@ public:
 
     [[nodiscard]] GLuint getShaderProgramId() const { return m_ShaderProgramID; }
 
+    [[nodiscard]] GLuint getPositionAttrID() const { return m_PosAttribID; }
+    [[nodiscard]] GLuint getColorAttributeID() const { return m_ColorAttribID; }
+    [[nodiscard]] GLuint getUVAttributeID() const { return m_UVAttribID; }
+
 protected:
     static void compileSingleShader(const std::string& shaderFilename, GLuint id);
 
@@ -29,9 +33,9 @@ protected:
     GLuint m_VertexShaderID {0};
     GLuint m_FragShaderID {0};
 
-    GLuint m_PosAttribID {0};
-    GLuint m_ColorAttribID {0};
-    GLuint m_UVAttribID {0};
+    GLint m_PosAttribID {-1};
+    GLint m_ColorAttribID {-1};
+    GLint m_UVAttribID {-1};
 };
 
 
