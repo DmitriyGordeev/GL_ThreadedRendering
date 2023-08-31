@@ -11,7 +11,8 @@ public:
 
     void compile(const std::string& vertexShader, const std::string& pixelShader);
     void link() const;
-    void addAttribute(const std::string& attributeName);
+
+    void setupAttributes();
 
     [[nodiscard]] GLuint getUniformLocation(const std::string& uniformName) const;
 
@@ -24,10 +25,13 @@ protected:
     static void compileSingleShader(const std::string& shaderFilename, GLuint id);
 
 protected:
-    int m_NumAttributes;
-    GLuint m_ShaderProgramID;
-    GLuint m_VertexShaderID;
-    GLuint m_FragShaderID;
+    GLuint m_ShaderProgramID {0};
+    GLuint m_VertexShaderID {0};
+    GLuint m_FragShaderID {0};
+
+    GLuint m_PosAttribID {0};
+    GLuint m_ColorAttribID {0};
+    GLuint m_UVAttribID {0};
 };
 
 

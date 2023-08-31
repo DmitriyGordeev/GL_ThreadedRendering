@@ -1,13 +1,10 @@
 #include "Shaders.h"
 #include "Logger.h"
+#include "Vertex.h"
 #include <vector>
 #include <fstream>
 
-Shaders::Shaders() :
-        m_NumAttributes(0),
-        m_ShaderProgramID(0),
-        m_VertexShaderID(0),
-        m_FragShaderID(0) {}
+Shaders::Shaders() = default;
 
 Shaders::~Shaders() = default;
 
@@ -71,6 +68,24 @@ void Shaders::link() const
     glDeleteShader(m_FragShaderID);
 }
 
+void Shaders::setupAttributes() {
+    // let know opengl how position values are layout inside Vertex* m_Geometry bytes
+    m_PosAttribID = glGetAttribLocation(m_ShaderProgramID, "vertexPosition");
+    // second arg 2 because we draw in 2D space - for 3D need to replace with 3
+    glVertexAttribPointer(m_PosAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(m_PosAttribID);
+
+    // color attributes
+    m_ColorAttribID = glGetAttribLocation(m_ShaderProgramID, "vertexColor");
+    glVertexAttribPointer(m_ColorAttribID, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)8);
+    glEnableVertexAttribArray(m_ColorAttribID);
+
+    // uv atrributes
+    m_UVAttribID = glGetAttribLocation(m_ShaderProgramID, "vertexUV");
+    glVertexAttribPointer(m_UVAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
+    glEnableVertexAttribArray(m_UVAttribID);
+}
+
 GLuint Shaders::getUniformLocation(const std::string& uniformName) const
 {
     GLuint location = glGetUniformLocation(m_ShaderProgramID, uniformName.c_str());
@@ -78,11 +93,6 @@ GLuint Shaders::getUniformLocation(const std::string& uniformName) const
         Logger::error("Uniform variable '" + uniformName + "' not found in shader");
 
     return location;
-}
-
-void Shaders::addAttribute(const std::string& attributeName)
-{
-    glBindAttribLocation(m_ShaderProgramID, m_NumAttributes++, attributeName.c_str());
 }
 
 void Shaders::use() const

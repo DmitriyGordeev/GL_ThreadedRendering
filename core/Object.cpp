@@ -105,23 +105,22 @@ void Object::applyShader(GLuint shaderProgramID) {
         return;
     }
 
-    glUseProgram(shaderProgramID);
     glBindVertexArray(m_VaoID);
     glBindBuffer(GL_ARRAY_BUFFER, m_VboID);
 
     // let know opengl how position values are layout inside Vertex* m_Geometry bytes
-    m_PosAttribID = glGetAttribLocation(shaderProgramID, "vertexPosition");
+    auto m_PosAttribID = glGetAttribLocation(shaderProgramID, "vertexPosition");
     // second arg 2 because we draw in 2D space - for 3D need to replace with 3
     glVertexAttribPointer(m_PosAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(m_PosAttribID);
 
     // color attributes
-    m_ColorAttribID = glGetAttribLocation(shaderProgramID, "vertexColor");
+    auto m_ColorAttribID = glGetAttribLocation(shaderProgramID, "vertexColor");
     glVertexAttribPointer(m_ColorAttribID, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)8);
     glEnableVertexAttribArray(m_ColorAttribID);
 
     // uv atrributes
-    m_UVAttribID = glGetAttribLocation(shaderProgramID, "vertexUV");
+    auto m_UVAttribID = glGetAttribLocation(shaderProgramID, "vertexUV");
     glVertexAttribPointer(m_UVAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
     glEnableVertexAttribArray(m_UVAttribID);
 

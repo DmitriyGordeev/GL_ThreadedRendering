@@ -50,6 +50,7 @@ void EngineCore::createWindow(int width, int height) {
         // todo: ini файл со всеми путями? - передать в качестве аргумента?
         m_Shaders->compile("../shaders/shader.vs", "../shaders/shader.fs");
         m_Shaders->link();
+
     }
     catch(const std::exception& e) {
         Logger::error(e.what());

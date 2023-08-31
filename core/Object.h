@@ -25,10 +25,6 @@ protected:
     GLuint m_VboID {0};
     GLuint m_IboID {0};
 
-    GLuint m_PosAttribID {0};
-    GLuint m_ColorAttribID {0};
-    GLuint m_UVAttribID {0};
-
 //    GLuint m_TextureID {0};
 
     glm::vec2 m_Position {0.0f, 0.0f};
