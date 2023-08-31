@@ -2,6 +2,7 @@
 #define COLLIDERGAME_ENGINECORE_H
 #include <memory>
 #include <ctime>
+#include <vector>
 #include <chrono>
 
 #include <SDL.h>
@@ -37,10 +38,11 @@ protected:
     std::shared_ptr<InputSystem> m_InputSystem;
     long long m_LastFrameTimeMillis {0};
     GameState m_GameStatus {GameState::RUNNING};
-    std::shared_ptr<Shaders> m_Shaders;
+
     std::shared_ptr<Camera> m_Camera;
 
-    std::shared_ptr<Object> m_Object;
+    std::vector<std::shared_ptr<Shaders>> m_Shaders;
+    std::vector<std::shared_ptr<Object>> m_Objects;
 };
 
 

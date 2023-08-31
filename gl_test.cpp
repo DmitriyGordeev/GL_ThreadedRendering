@@ -74,7 +74,7 @@ int main() {
     // Create shaders
     Shaders shaders;
     try {
-        shaders.compile("../shaders/shader.vs", "../shaders/shader.fs");
+        shaders.compile("../shaders/test_vert.vs", "../shaders/test_frag.fs");
         shaders.link();
     }
     catch(const std::exception& e) {

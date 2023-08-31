@@ -9,7 +9,7 @@
 EngineCore::EngineCore() {
     SDL_Init(SDL_INIT_EVERYTHING);
     m_InputSystem = std::make_shared<InputSystem>();
-    m_Shaders = std::make_shared<Shaders>();
+//    m_Shaders = std::make_shared<Shaders>();
     m_Camera = std::make_shared<Camera>();
 }
 
@@ -48,9 +48,10 @@ void EngineCore::createWindow(int width, int height) {
     // Create shaders
     try {
         // todo: ini файл со всеми путями? - передать в качестве аргумента?
-        m_Shaders->compile("../shaders/shader.vs", "../shaders/shader.fs");
-        m_Shaders->link();
-
+        std::shared_ptr<Shaders> shader(new Shaders());
+        shader->compile("../shaders/shader.vs", "../shaders/shader.fs");
+        shader->link();
+        m_Shaders.push_back(std::move(shader));
     }
     catch(const std::exception& e) {
         Logger::error(e.what());
@@ -67,9 +68,12 @@ void EngineCore::createWindow(int width, int height) {
     //  Anti-Aliasing:
     glEnable(GL_MULTISAMPLE);
 
+    // TODO: createScene()
     m_Camera->init(width, height);
-    m_Object = std::make_shared<Object>();
-    m_Object->applyShader(m_Shaders);
+
+    auto object = std::make_shared<Object>();
+    object->applyShader(m_Shaders[0]);
+    m_Objects.emplace_back(std::move(object));
 }
 
 
@@ -186,14 +190,28 @@ void EngineCore::renderFrame() {
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // todo: updateUniformsForAllShaders();
-    // Update MVP matrix value of the shader's uniform
-    GLint pLocation = m_Shaders->getUniformLocation("P");
-    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
-    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+//    // todo: updateUniformsForAllShaders();
+//    // Update MVP matrix value of the shader's uniform
+//    GLint pLocation = m_Shaders->getUniformLocation("P");
+//    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
+//    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+//
+//
+//    m_Object->render();
 
 
-    m_Object->render();
+    // Update uniforms for all shaders
+    for(auto& shader : m_Shaders) {
+        GLint pLocation = shader->getUniformLocation("P");
+        glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
+        glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+    }
+
+    // Render objects
+    for(auto& obj : m_Objects)
+        obj->render();
+
+
 
 
 //    glUseProgram(m_Shaders->getShaderProgramId());
