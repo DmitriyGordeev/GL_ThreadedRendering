@@ -69,18 +69,19 @@ void Shaders::link() const
 }
 
 void Shaders::setupAttributes() {
-    // let know opengl how position values are layout inside Vertex* m_Geometry bytes
     m_PosAttribID = glGetAttribLocation(m_ShaderProgramID, "vertexPosition");
-    // second arg 2 because we draw in 2D space - for 3D need to replace with 3
+    // second arg = 2 because we draw in 2D
+    // positions block comes first - offset is 0: (void*)0
     glVertexAttribPointer(m_PosAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(m_PosAttribID);
 
-    // color attributes
+    // color attributes, comes after position 2 float = 8 bytes: (void*)8
     m_ColorAttribID = glGetAttribLocation(m_ShaderProgramID, "vertexColor");
     glVertexAttribPointer(m_ColorAttribID, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)8);
     glEnableVertexAttribArray(m_ColorAttribID);
 
-    // uv atrributes
+    // uv atrributes, comes after position (2 floats) and
+    // 4 colors (4 bytes) = 8 + 16 = 24: (void*)24
     m_UVAttribID = glGetAttribLocation(m_ShaderProgramID, "vertexUV");
     glVertexAttribPointer(m_UVAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
     glEnableVertexAttribArray(m_UVAttribID);
@@ -93,26 +94,6 @@ GLuint Shaders::getUniformLocation(const std::string& uniformName) const
         Logger::error("Uniform variable '" + uniformName + "' not found in shader");
 
     return location;
-}
-
-void Shaders::use() const
-{
-    // Using shader
-    glUseProgram(m_ShaderProgramID);
-
-//    // Enable each bound vertex attribute
-//    for (int i = 0; i < m_NumAttributes; i++)
-//        glEnableVertexAttribArray(i);
-}
-
-void Shaders::disable() const
-{
-    // Stop using program
-    glUseProgram(0);
-
-//    // Disable each bound vertex attribute
-//    for (int i = 0; i < m_NumAttributes; i++)
-//        glDisableVertexAttribArray(i);
 }
 
 void Shaders::compileSingleShader(const std::string& shaderFilename, GLuint id)

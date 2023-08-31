@@ -12,13 +12,11 @@ public:
     void compile(const std::string& vertexShader, const std::string& pixelShader);
     void link() const;
 
+    /** Tells opengl how vertex attributes (pos, color, uv, ...)
+    are aligned in a memory block of a single vertex */
     void setupAttributes();
 
     [[nodiscard]] GLuint getUniformLocation(const std::string& uniformName) const;
-
-    void use() const;
-    void disable() const;
-
     [[nodiscard]] GLuint getShaderProgramId() const { return m_ShaderProgramID; }
 
     [[nodiscard]] GLuint getPositionAttrID() const { return m_PosAttribID; }
