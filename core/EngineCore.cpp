@@ -67,99 +67,98 @@ void EngineCore::createWindow(int width, int height) {
     glEnable(GL_MULTISAMPLE);
 
 
-
-
     // TODO: prepare scene()
+
     m_Camera->init(width, height);
-//    m_Object = std::make_shared<Object>();
-//    m_Object->applyShader(m_Shaders->getShaderProgramId());
+    m_Object = std::make_shared<Object>();
+    m_Object->applyShader(m_Shaders->getShaderProgramId());
 
 
-    // TRIANGLE -----------------------------------------------------
-    Vertex* m_Geometry = new Vertex[4];
-    glm::vec2 m_Position = {0.0f, 0.0f};
-    glm::vec2 m_WorldSize = {1.0f, 1.0f};
-
-    // top left
-    m_Geometry[0].pos.x = m_Position.x - m_WorldSize.x / 2.0f;
-    m_Geometry[0].pos.y = m_Position.y + m_WorldSize.y / 2.0f;
-    m_Geometry[0].color.r = 0;
-    m_Geometry[0].color.g = 20;
-    m_Geometry[0].color.b = 0;
-    m_Geometry[0].uv.u = 0.0f;
-    m_Geometry[0].uv.v = 1.0f;
-
-    // bottom left
-    m_Geometry[1].pos.x = m_Position.x - m_WorldSize.x / 2.0f;
-    m_Geometry[1].pos.y = m_Position.y - m_WorldSize.y / 2.0f;
-    m_Geometry[1].color.r = 255;
-    m_Geometry[1].color.g = 255;
-    m_Geometry[1].color.b = 255;
-    m_Geometry[1].uv.u = 1.0f;
-    m_Geometry[1].uv.v = 1.0f;
-
-    // bottom right
-    m_Geometry[2].pos.x = m_Position.x + m_WorldSize.x / 2.0f;
-    m_Geometry[2].pos.y = m_Position.y - m_WorldSize.y / 2.0f;
-    m_Geometry[2].color.r = 255;
-    m_Geometry[2].color.g = 255;
-    m_Geometry[2].color.b = 255;
-    m_Geometry[2].uv.u = 1.0f;
-    m_Geometry[2].uv.v = 0.0f;
-
-    // top right
-    m_Geometry[3].pos.x = m_Position.x + m_WorldSize.x / 2.0f + 0.1f;
-    m_Geometry[3].pos.y = m_Position.y + m_WorldSize.y / 2.0f;
-    m_Geometry[3].color.r = 255;
-    m_Geometry[3].color.g = 255;
-    m_Geometry[3].color.b = 255;
-    m_Geometry[3].uv.u = 0.0f;
-    m_Geometry[3].uv.v = 0.0f;
-
-    int* indices = new int[6];
-    indices[0] = 3;
-    indices[1] = 0;
-    indices[2] = 1;
-    indices[3] = 1;
-    indices[4] = 2;
-    indices[5] = 3;
-
-    if (vao == 0) {
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-    }
-    if(vbo == 0) {
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), m_Geometry, GL_STATIC_DRAW);
-    }
-    if(ibo == 0) {
-        glGenBuffers(1, &ibo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), indices, GL_STATIC_DRAW);
-    }
-
-
-//    glBindVertexArray(0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    glBindBuffer(GL_INDEX_ARRAY, 0);
-
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    GLuint shaderID = m_Shaders->getShaderProgramId();
-    glUseProgram(shaderID);
-
-    posAttr = glGetAttribLocation(shaderID, "vertexPosition");
-    glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-    glEnableVertexAttribArray(posAttr);
-
-    colAttr = glGetAttribLocation(shaderID, "vertexColor");
-    glVertexAttribPointer(colAttr, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)8);
-    glEnableVertexAttribArray(colAttr);
-
-    uvAttr = glGetAttribLocation(shaderID, "vertexUV");
-    glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
-    glEnableVertexAttribArray(uvAttr);
+//    // Manual check -----------------------------------------------------
+//    Vertex* m_Geometry = new Vertex[4];
+//    glm::vec2 m_Position = {0.0f, 0.0f};
+//    glm::vec2 m_WorldSize = {1.0f, 1.0f};
+//
+//    // top left
+//    m_Geometry[0].pos.x = m_Position.x - m_WorldSize.x / 2.0f;
+//    m_Geometry[0].pos.y = m_Position.y + m_WorldSize.y / 2.0f;
+//    m_Geometry[0].color.r = 0;
+//    m_Geometry[0].color.g = 20;
+//    m_Geometry[0].color.b = 0;
+//    m_Geometry[0].uv.u = 0.0f;
+//    m_Geometry[0].uv.v = 1.0f;
+//
+//    // bottom left
+//    m_Geometry[1].pos.x = m_Position.x - m_WorldSize.x / 2.0f;
+//    m_Geometry[1].pos.y = m_Position.y - m_WorldSize.y / 2.0f;
+//    m_Geometry[1].color.r = 255;
+//    m_Geometry[1].color.g = 255;
+//    m_Geometry[1].color.b = 255;
+//    m_Geometry[1].uv.u = 1.0f;
+//    m_Geometry[1].uv.v = 1.0f;
+//
+//    // bottom right
+//    m_Geometry[2].pos.x = m_Position.x + m_WorldSize.x / 2.0f;
+//    m_Geometry[2].pos.y = m_Position.y - m_WorldSize.y / 2.0f;
+//    m_Geometry[2].color.r = 255;
+//    m_Geometry[2].color.g = 255;
+//    m_Geometry[2].color.b = 255;
+//    m_Geometry[2].uv.u = 1.0f;
+//    m_Geometry[2].uv.v = 0.0f;
+//
+//    // top right
+//    m_Geometry[3].pos.x = m_Position.x + m_WorldSize.x / 2.0f + 0.1f;
+//    m_Geometry[3].pos.y = m_Position.y + m_WorldSize.y / 2.0f;
+//    m_Geometry[3].color.r = 255;
+//    m_Geometry[3].color.g = 255;
+//    m_Geometry[3].color.b = 255;
+//    m_Geometry[3].uv.u = 0.0f;
+//    m_Geometry[3].uv.v = 0.0f;
+//
+//    int* indices = new int[6];
+//    indices[0] = 3;
+//    indices[1] = 0;
+//    indices[2] = 1;
+//    indices[3] = 1;
+//    indices[4] = 2;
+//    indices[5] = 3;
+//
+//    if (vao == 0) {
+//        glGenVertexArrays(1, &vao);
+//        glBindVertexArray(vao);
+//    }
+//    if(vbo == 0) {
+//        glGenBuffers(1, &vbo);
+//        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), m_Geometry, GL_STATIC_DRAW);
+//    }
+//    if(ibo == 0) {
+//        glGenBuffers(1, &ibo);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), indices, GL_STATIC_DRAW);
+//    }
+//
+//
+////    glBindVertexArray(0);
+////    glBindBuffer(GL_ARRAY_BUFFER, 0);
+////    glBindBuffer(GL_INDEX_ARRAY, 0);
+//
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//    GLuint shaderID = m_Shaders->getShaderProgramId();
+//    glUseProgram(shaderID);
+//
+//    posAttr = glGetAttribLocation(shaderID, "vertexPosition");
+//    glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+//    glEnableVertexAttribArray(posAttr);
+//
+//    colAttr = glGetAttribLocation(shaderID, "vertexColor");
+//    glVertexAttribPointer(colAttr, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)8);
+//    glEnableVertexAttribArray(colAttr);
+//
+//    uvAttr = glGetAttribLocation(shaderID, "vertexUV");
+//    glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
+//    glEnableVertexAttribArray(uvAttr);
 
 }
 
@@ -245,48 +244,50 @@ void EngineCore::renderFrame() {
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-    glUseProgram(m_Shaders->getShaderProgramId());
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-//    // enable shader attributes
-//    glDisableVertexAttribArray(posAttr);
-//    glDisableVertexAttribArray(colAttr);
-//    glDisableVertexAttribArray(uvAttr);
+    m_Object->render(m_Shaders->getShaderProgramId());
 
 
-//    // Update MVP matrix value of the shader's uniform
-//    GLint pLocation = m_Shaders->getUniformLocation("P");
-//    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
-//    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
-
-//    m_Shaders->use();   // todo: сделать как в webgl ?
-////    glActiveTexture(GL_TEXTURE0);
+//    glUseProgram(m_Shaders->getShaderProgramId());
+//    glBindVertexArray(vao);
+//    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 //
-////    // Get texture variable from shaders
-////    GLint textureLocation = m_Shaders->getUniformLocation("textureSampler");
-////    glUniform1i(textureLocation, 0);
-//
-//    // Update MVP matrix value of the shader's uniform
-//    GLint pLocation = m_Shaders->getUniformLocation("P");
-//    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
-//    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
-//
-////    // Draws all figures
-////    TODO: Actor class, у которого есть свои VBO, VAO - взять из webgl
-////    _objectsGroup.cleanUp();
-////    _scene->draw();
-////    _objectsGroup.post();
-////    _objectsGroup.renderGroup();
+////    // enable shader attributes
+////    glDisableVertexAttribArray(posAttr);
+////    glDisableVertexAttribArray(colAttr);
+////    glDisableVertexAttribArray(uvAttr);
 //
 //
-//    m_Object->applyShader(m_Shaders->getShaderProgramId());
-//    m_Object->render(m_Shaders->getShaderProgramId());
+////    // Update MVP matrix value of the shader's uniform
+////    GLint pLocation = m_Shaders->getUniformLocation("P");
+////    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
+////    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
 //
-//
-////    glBindTexture(GL_TEXTURE_2D, 0);
-////    m_Shaders->disable();   // todo: ?
+////    m_Shaders->use();   // todo: сделать как в webgl ?
+//////    glActiveTexture(GL_TEXTURE0);
+////
+//////    // Get texture variable from shaders
+//////    GLint textureLocation = m_Shaders->getUniformLocation("textureSampler");
+//////    glUniform1i(textureLocation, 0);
+////
+////    // Update MVP matrix value of the shader's uniform
+////    GLint pLocation = m_Shaders->getUniformLocation("P");
+////    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
+////    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+////
+//////    // Draws all figures
+//////    TODO: Actor class, у которого есть свои VBO, VAO - взять из webgl
+//////    _objectsGroup.cleanUp();
+//////    _scene->draw();
+//////    _objectsGroup.post();
+//////    _objectsGroup.renderGroup();
+////
+////
+////    m_Object->applyShader(m_Shaders->getShaderProgramId());
+////    m_Object->render(m_Shaders->getShaderProgramId());
+////
+////
+//////    glBindTexture(GL_TEXTURE_2D, 0);
+//////    m_Shaders->disable();   // todo: ?
 
 
 

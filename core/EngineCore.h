@@ -34,14 +34,14 @@ public:
 
 
 
-    GLuint vao {0};
-    GLuint vbo {0};
-    GLuint ibo {0};
-    Vertex* data;
-    int* indices;
-    GLuint posAttr;
-    GLuint colAttr;
-    GLuint uvAttr;
+//    GLuint vao {0};
+//    GLuint vbo {0};
+//    GLuint ibo {0};
+//    Vertex* data;
+//    int* indices;
+//    GLuint posAttr;
+//    GLuint colAttr;
+//    GLuint uvAttr;
 
 
 protected:

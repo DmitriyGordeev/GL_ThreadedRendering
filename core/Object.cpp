@@ -90,10 +90,10 @@ void Object::buildBuffers() {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), m_Indices, GL_STATIC_DRAW);
     }
 
-    // 4. Unbind buffers - mark that we've done everything we want with
-    // binding points (vertex array, GL_ARRAY_BUFFER, GL_INDEX_BUFFER)
-    // and detach, making further changes with
-    // our data (m_Geometry, indices, ...) invisible for OpenGL's internal state
+//    // 4. Unbind buffers - mark that we've done everything we want with
+//    // binding points (vertex array, GL_ARRAY_BUFFER, GL_INDEX_BUFFER)
+//    // and detach, making further changes with
+//    // our data (m_Geometry, indices, ...) invisible for OpenGL's internal state
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -106,41 +106,44 @@ void Object::applyShader(GLuint shaderProgramID) {
     }
 
     glUseProgram(shaderProgramID);
+    glBindVertexArray(m_VaoID);
     glBindBuffer(GL_ARRAY_BUFFER, m_VboID);
 
     // let know opengl how position values are layout inside Vertex* m_Geometry bytes
     m_PosAttribID = glGetAttribLocation(shaderProgramID, "vertexPosition");
     // second arg 2 because we draw in 2D space - for 3D need to replace with 3
-    glVertexAttribPointer(m_PosAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
+    glVertexAttribPointer(m_PosAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(m_PosAttribID);
 
     // color attributes
     m_ColorAttribID = glGetAttribLocation(shaderProgramID, "vertexColor");
-    glVertexAttribPointer(m_ColorAttribID, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+    glVertexAttribPointer(m_ColorAttribID, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)8);
+    glEnableVertexAttribArray(m_ColorAttribID);
 
     // uv atrributes
     m_UVAttribID = glGetAttribLocation(shaderProgramID, "vertexUV");
-    glVertexAttribPointer(m_UVAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+    glVertexAttribPointer(m_UVAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
+    glEnableVertexAttribArray(m_UVAttribID);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Object::render(GLuint shaderProgramID) {
-    glBindVertexArray(m_VaoID);
     glUseProgram(shaderProgramID);
+    glBindVertexArray(m_VaoID);
 
-    // enable shader attributes
-    glEnableVertexAttribArray(m_PosAttribID);
-    glEnableVertexAttribArray(m_ColorAttribID);
-    glEnableVertexAttribArray(m_UVAttribID);
+//    // enable shader attributes
+//    glEnableVertexAttribArray(m_PosAttribID);
+//    glEnableVertexAttribArray(m_ColorAttribID);
+//    glEnableVertexAttribArray(m_UVAttribID);
 
     // setTextureUniform();
 
-//    glDrawElements(GL_TRIANGLES, 2, GL_UNSIGNED_SHORT, m_Indices);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-    // disable vertex attributes
-    glDisableVertexAttribArray(m_PosAttribID);
-    glDisableVertexAttribArray(m_ColorAttribID);
-    glDisableVertexAttribArray(m_UVAttribID);
+//    // disable vertex attributes
+//    glDisableVertexAttribArray(m_PosAttribID);
+//    glDisableVertexAttribArray(m_ColorAttribID);
+//    glDisableVertexAttribArray(m_UVAttribID);
     glBindVertexArray(0);
 }
