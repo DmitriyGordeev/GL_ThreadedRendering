@@ -57,6 +57,7 @@ void EngineCore::createWindow(int width, int height) {
         shader = std::make_shared<Shaders>();
         shader->compile("../shaders/shader_2.vs", "../shaders/shader_2.fs");
         shader->link();
+        shader->loadTexture("../textures/circle.png");
         m_Shaders.push_back(std::move(shader));
     }
     catch(const std::exception& e) {
@@ -204,14 +205,14 @@ void EngineCore::renderFrame() {
 
     glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
 
-//    // Update uniforms for all shaders
-//    for(auto& shader : m_Shaders) {
-//        glUseProgram(shader->getShaderProgramId());
-//
-//        // MVP matrix to uniforms
-//        GLint pLocation = shader->getUniformLocation("P");
-//        glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
-//
+    // Update uniforms for all shaders
+    for(auto& shader : m_Shaders) {
+        glUseProgram(shader->getShaderProgramId());
+
+        // MVP matrix to uniforms
+        GLint pLocation = shader->getUniformLocation("P");
+        glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+
 //        // Texture to uniforms
 //        // TODO: сделать единожды на создании?, если текстура не планирует меняться?
 //        if (shader->getTextureID()) {
@@ -219,39 +220,14 @@ void EngineCore::renderFrame() {
 //            GLuint textureLocation = shader->getUniformLocation("textureSampler");
 //            glUniform1i(textureLocation, shader->getTextureID());
 //        }
-//
-//    }
-//
-//    // Render objects
-//    for(auto& obj : m_Objects)
-//        obj->render();
-//
+
+    }
+
+    // Render objects
+    for(auto& obj : m_Objects)
+        obj->render();
+
 //    glBindTexture(GL_TEXTURE_2D, 0);
-
-
-    auto shader = m_Shaders[0];
-    glUseProgram(shader->getShaderProgramId());
-    GLint pLocation = shader->getUniformLocation("P");
-    if (pLocation == GL_INVALID_INDEX) {
-        throw std::runtime_error("P uniform INV INDEX");
-    }
-    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
-
-
-
-    if (shader->getTextureID()) {
-//        glActiveTexture(GL_TEXTURE0);
-//        glBindTexture(GL_TEXTURE_2D, shader->getTextureID());
-        GLuint textureLocation = shader->getUniformLocation("textureSampler");
-        if (textureLocation == GL_INVALID_INDEX) {
-            throw std::runtime_error("textureLocation uniform INV INDEX");
-        }
-        glUniform1i(textureLocation, 0);
-
-        m_Objects[0]->render();
-    }
-
-
 
     // swap buffers and draw everything on the screen
     SDL_GL_SwapWindow(m_Window);

@@ -138,6 +138,7 @@ void Object::render() {
 
     auto shader = m_ShaderRef.lock();
     glUseProgram(shader->getShaderProgramId());
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, shader->getTextureID());
 
     glBindVertexArray(m_VaoID);

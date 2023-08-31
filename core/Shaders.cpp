@@ -89,13 +89,11 @@ void Shaders::setupAttributes() {
 }
 
 bool Shaders::loadTexture(const std::string& path) {
-
     m_TextureID = TextureLoader::loadTexture(path);
     return (m_TextureID != 0);
 }
 
-GLuint Shaders::getUniformLocation(const std::string& uniformName) const
-{
+GLuint Shaders::getUniformLocation(const std::string& uniformName) const {
     GLuint location = glGetUniformLocation(m_ShaderProgramID, uniformName.c_str());
     if (location == GL_INVALID_INDEX)
         Logger::error("Uniform variable '" + uniformName + "' not found in shader");
