@@ -12,17 +12,9 @@ uniform mat4 P;
 
 void main()
 {
-    vec4 pos = P * vec4(vertexPosition, 0.0, 1.0);
-    pos.x += 0.6f;
-    pos.z = 0.0f;
-    pos.w = 1.0f;
-    gl_Position = pos;
-
-	// gl_Position.xy = (P * vec4(vertexPosition, 0.0, 1.0)).xy;
-	// gl_Position.z = 0.0;
-	// gl_Position.w = 1.0;
-
-	// gl_Position = vec4(vertexPosition, 0.0, 1.0);
+    gl_Position.xy = (P * vec4(vertexPosition, 0.0, 1.0)).xy;
+    gl_Position.z = 0.0;
+    gl_Position.w = 1.0;
 
 	fragmentPosition = vertexPosition;
 	fragmentColor = vertexColor;

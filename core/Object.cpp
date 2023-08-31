@@ -6,6 +6,12 @@ Object::Object() {
     createGeometry();
 }
 
+Object::Object(const glm::vec2& pos, const glm::vec2& size):
+    m_Position(pos),
+    m_WorldSize(size) {
+    createGeometry();
+}
+
 Object::~Object() {
     if (m_Geometry) {
         delete[] m_Geometry;

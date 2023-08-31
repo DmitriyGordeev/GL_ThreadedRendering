@@ -10,6 +10,7 @@
 class Object {
 public:
     Object();
+    Object(const glm::vec2& pos, const glm::vec2& size);
 
     virtual ~Object();
 

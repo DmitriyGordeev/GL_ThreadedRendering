@@ -84,7 +84,7 @@ void EngineCore::createWindow(int width, int height) {
     m_Objects.emplace_back(std::move(object));
 
     // Create second object and apply shader [1]
-    object = std::make_shared<Object>();
+    object = std::make_shared<Object>(glm::vec2(100, 100), glm::vec2(50, 50));
     object->applyShader(m_Shaders[1]);
     m_Objects.emplace_back(std::move(object));
 }
@@ -212,22 +212,11 @@ void EngineCore::renderFrame() {
         // MVP matrix to uniforms
         GLint pLocation = shader->getUniformLocation("P");
         glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
-
-//        // Texture to uniforms
-//        // TODO: сделать единожды на создании?, если текстура не планирует меняться?
-//        if (shader->getTextureID()) {
-//            glBindTexture(GL_TEXTURE_2D, shader->getTextureID());
-//            GLuint textureLocation = shader->getUniformLocation("textureSampler");
-//            glUniform1i(textureLocation, shader->getTextureID());
-//        }
-
     }
 
     // Render objects
     for(auto& obj : m_Objects)
         obj->render();
-
-//    glBindTexture(GL_TEXTURE_2D, 0);
 
     // swap buffers and draw everything on the screen
     SDL_GL_SwapWindow(m_Window);
