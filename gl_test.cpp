@@ -196,24 +196,9 @@ int main() {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
 
-//        glBindVertexArray(vao);
-//
-////        glActiveTexture(GL_TEXTURE0);
-//        glBindTexture(GL_TEXTURE_2D, shaders.getTextureID());
-//        GLuint textureLocation = shaders.getUniformLocation("textureSampler");
-//        if (textureLocation == GL_INVALID_INDEX) {
-//            throw std::runtime_error("textureLocation uniform INV INDEX");
-//        }
-//        glUniform1i(textureLocation, 0);
-//
-//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-//        glBindVertexArray(0);
-//        glBindTexture(GL_TEXTURE_2D, 0);
-
         // swap buffers and draw everything on the screen
         SDL_GL_SwapWindow(window);
     }
-
 
     return 0;
 }

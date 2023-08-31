@@ -41,8 +41,6 @@ protected:
     GLint m_UVAttribID {-1};
 
     GLuint m_TextureID {0};
-
-    std::vector<unsigned char> m_TextureBytes;
 };
 
 

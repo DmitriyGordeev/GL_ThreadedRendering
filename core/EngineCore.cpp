@@ -228,6 +228,7 @@ void EngineCore::renderFrame() {
 //
 //    glBindTexture(GL_TEXTURE_2D, 0);
 
+
     auto shader = m_Shaders[0];
     glUseProgram(shader->getShaderProgramId());
     GLint pLocation = shader->getUniformLocation("P");
@@ -236,74 +237,24 @@ void EngineCore::renderFrame() {
     }
     glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
 
+
+
     if (shader->getTextureID()) {
-        glActiveTexture(GL_TEXTURE0);
-        // glBindTexture(GL_TEXTURE_2D, shader->getTextureID());
+//        glActiveTexture(GL_TEXTURE0);
+//        glBindTexture(GL_TEXTURE_2D, shader->getTextureID());
         GLuint textureLocation = shader->getUniformLocation("textureSampler");
         if (textureLocation == GL_INVALID_INDEX) {
             throw std::runtime_error("textureLocation uniform INV INDEX");
         }
-        glUniform1i(textureLocation, shader->getTextureID());
+        glUniform1i(textureLocation, 0);
 
         m_Objects[0]->render();
     }
 
 
 
-
-
-
-//    glUseProgram(m_Shaders->getShaderProgramId());
-//    glBindVertexArray(vao);
-//    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-//
-////    // enable shader attributes
-////    glDisableVertexAttribArray(posAttr);
-////    glDisableVertexAttribArray(colAttr);
-////    glDisableVertexAttribArray(uvAttr);
-//
-//
-////    // Update MVP matrix value of the shader's uniform
-////    GLint pLocation = m_Shaders->getUniformLocation("P");
-////    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
-////    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
-//
-////    m_Shaders->use();   // todo: сделать как в webgl ?
-//////    glActiveTexture(GL_TEXTURE0);
-////
-//////    // Get texture variable from shaders
-//////    GLint textureLocation = m_Shaders->getUniformLocation("textureSampler");
-//////    glUniform1i(textureLocation, 0);
-////
-////    // Update MVP matrix value of the shader's uniform
-////    GLint pLocation = m_Shaders->getUniformLocation("P");
-////    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
-////    glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
-////
-//////    // Draws all figures
-//////    TODO: Actor class, у которого есть свои VBO, VAO - взять из webgl
-//////    _objectsGroup.cleanUp();
-//////    _scene->draw();
-//////    _objectsGroup.post();
-//////    _objectsGroup.renderGroup();
-////
-////
-////    m_Object->applyShader(m_Shaders->getShaderProgramId());
-////    m_Object->render(m_Shaders->getShaderProgramId());
-////
-////
-//////    glBindTexture(GL_TEXTURE_2D, 0);
-//////    m_Shaders->disable();   // todo: ?
-
-
-
-
-
-
-
     // swap buffers and draw everything on the screen
     SDL_GL_SwapWindow(m_Window);
-
 }
 
 

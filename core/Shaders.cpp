@@ -89,7 +89,8 @@ void Shaders::setupAttributes() {
 }
 
 bool Shaders::loadTexture(const std::string& path) {
-    m_TextureID = TextureLoader::loadTexture(path, m_TextureBytes);
+
+    m_TextureID = TextureLoader::loadTexture(path);
     return (m_TextureID != 0);
 }
 

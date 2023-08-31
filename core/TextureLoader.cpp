@@ -3,12 +3,11 @@
 #include "Logger.h"
 
 
-GLuint TextureLoader::loadTexture(const std::string& path,
-                                  std::vector<unsigned char>& output) {
+GLuint TextureLoader::loadTexture(const std::string& path) {
     GLuint textureID;
 
     std::vector<unsigned char> input;
-//    std::vector<unsigned char> output;
+    std::vector<unsigned char> output;
     unsigned long width, height;
 
     if (!IO::readBinary(path, input)) {
