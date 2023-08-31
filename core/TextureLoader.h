@@ -3,13 +3,15 @@
 
 #include "picoPNG.h"
 #include <string>
+#include <vector>
 #include <gl/glew.h>
 
 class TextureLoader {
 public:
     /* loads texture from file and binds its bytes to
      * generated GL texture ID */
-    static GLuint loadTexture(const std::string& path);
+    static GLuint loadTexture(const std::string& path,
+                              std::vector<unsigned char>& output);
 
 };
 

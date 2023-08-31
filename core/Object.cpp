@@ -36,8 +36,8 @@ void Object::createGeometry() {
     m_Geometry[1].color.r = 255;
     m_Geometry[1].color.g = 255;
     m_Geometry[1].color.b = 255;
-    m_Geometry[1].uv.u = 1.0f;
-    m_Geometry[1].uv.v = 1.0f;
+    m_Geometry[1].uv.u = 0.0f;
+    m_Geometry[1].uv.v = 0.0f;
 
     // bottom right
     m_Geometry[2].pos.x = m_Position.x + m_WorldSize.x / 2.0f;
@@ -54,8 +54,8 @@ void Object::createGeometry() {
     m_Geometry[3].color.r = 255;
     m_Geometry[3].color.g = 255;
     m_Geometry[3].color.b = 255;
-    m_Geometry[3].uv.u = 0.0f;
-    m_Geometry[3].uv.v = 0.0f;
+    m_Geometry[3].uv.u = 1.0f;
+    m_Geometry[3].uv.v = 1.0f;
 
     buildBuffers();
 }
@@ -136,7 +136,10 @@ void Object::render() {
         return;
     }
 
-    glUseProgram(m_ShaderRef.lock()->getShaderProgramId());
+    auto shader = m_ShaderRef.lock();
+//    glUseProgram(shader->getShaderProgramId());
+    glBindTexture(GL_TEXTURE_2D, shader->getTextureID());
+
     glBindVertexArray(m_VaoID);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);

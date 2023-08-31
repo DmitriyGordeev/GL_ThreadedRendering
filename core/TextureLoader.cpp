@@ -3,19 +3,24 @@
 #include "Logger.h"
 
 
-GLuint TextureLoader::loadTexture(const std::string& path) {
+GLuint TextureLoader::loadTexture(const std::string& path,
+                                  std::vector<unsigned char>& output) {
     GLuint textureID;
 
     std::vector<unsigned char> input;
-    std::vector<unsigned char> output;
+//    std::vector<unsigned char> output;
     unsigned long width, height;
 
-    if (!IO::readBinary(path, input))
+    if (!IO::readBinary(path, input)) {
         Logger::error("[TextureLoader::loadTexture()] Failed to load png!");
+        return 0;
+    }
 
     int error = decodePNG(output, width, height, &(input[0]), input.size());
-    if (error != 0)
+    if (error != 0) {
         Logger::error("[TextureLoader::loadTexture()] decodePNG failed width error " + std::to_string(error));
+        return 0;
+    }
 
     //  Generate the openGL texture object
     glGenTextures(1, &(textureID));
@@ -33,7 +38,7 @@ GLuint TextureLoader::loadTexture(const std::string& path) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
     // TODO: создает ошибку - пофиксить
-//    glGenerateMipmap(GL_TEXTURE_2D);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     // finished working with this texture - unbind the context
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -41,5 +46,4 @@ GLuint TextureLoader::loadTexture(const std::string& path) {
 //    texture.width = width;
 //    texture.height = height;
     return textureID;
-
 }

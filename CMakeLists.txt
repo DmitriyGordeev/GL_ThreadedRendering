@@ -40,7 +40,10 @@ target_link_libraries(ColliderGame
 add_executable(TestGL gl_test.cpp
         core/Shaders.cpp
         core/Logger.cpp
-        core/Camera.cpp)
+        core/Camera.cpp
+        utils/picoPNG.cpp
+        utils/IO.cpp
+        core/TextureLoader.cpp)
 target_link_libraries(TestGL
         ${OPENGL_LIBRARIES}
         SDL2.lib

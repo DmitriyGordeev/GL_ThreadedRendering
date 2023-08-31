@@ -3,6 +3,7 @@
 #include "Vertex.h"
 #include <vector>
 #include <fstream>
+#include "TextureLoader.h"
 
 Shaders::Shaders() = default;
 
@@ -81,10 +82,15 @@ void Shaders::setupAttributes() {
     glEnableVertexAttribArray(m_ColorAttribID);
 
     // uv atrributes, comes after position (2 floats) and
-    // 4 colors (4 bytes) = 8 + 16 = 24: (void*)24
+    // 4 colors (4 bytes) = 8 + 4 = 12: (void*)12
     m_UVAttribID = glGetAttribLocation(m_ShaderProgramID, "vertexUV");
-    glVertexAttribPointer(m_UVAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
+    glVertexAttribPointer(m_UVAttribID, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)12);
     glEnableVertexAttribArray(m_UVAttribID);
+}
+
+bool Shaders::loadTexture(const std::string& path) {
+    m_TextureID = TextureLoader::loadTexture(path, m_TextureBytes);
+    return (m_TextureID != 0);
 }
 
 GLuint Shaders::getUniformLocation(const std::string& uniformName) const

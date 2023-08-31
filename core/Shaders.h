@@ -3,6 +3,7 @@
 
 #include <gl/glew.h>
 #include <string>
+#include <vector>
 
 class Shaders {
 public:
@@ -16,12 +17,16 @@ public:
     are aligned in a memory block of a single vertex */
     void setupAttributes();
 
+    bool loadTexture(const std::string& path);
+
     [[nodiscard]] GLuint getUniformLocation(const std::string& uniformName) const;
     [[nodiscard]] GLuint getShaderProgramId() const { return m_ShaderProgramID; }
 
     [[nodiscard]] GLuint getPositionAttrID() const { return m_PosAttribID; }
     [[nodiscard]] GLuint getColorAttributeID() const { return m_ColorAttribID; }
     [[nodiscard]] GLuint getUVAttributeID() const { return m_UVAttribID; }
+
+    [[nodiscard]] GLuint getTextureID() const { return m_TextureID; }
 
 protected:
     static void compileSingleShader(const std::string& shaderFilename, GLuint id);
@@ -34,6 +39,10 @@ protected:
     GLint m_PosAttribID {-1};
     GLint m_ColorAttribID {-1};
     GLint m_UVAttribID {-1};
+
+    GLuint m_TextureID {0};
+
+    std::vector<unsigned char> m_TextureBytes;
 };
 
 

@@ -6,6 +6,7 @@
 #include "Shaders.h"
 #include "Vertex.h"
 #include "Camera.h"
+#include "TextureLoader.h"
 
 enum class GameState {
     RUNNING,
@@ -72,10 +73,12 @@ int main() {
         throw std::runtime_error("[GLContext] Couldn't initialize glew");
 
     // Create shaders
-    Shaders shaders;
+    Shaders shader;
+    GLuint textureID;
     try {
-        shaders.compile("../shaders/test_vert.vs", "../shaders/test_frag.fs");
-        shaders.link();
+        shader.compile("../shaders/test_vert.vs", "../shaders/test_frag.fs");
+        shader.link();
+        textureID = shader.loadTexture("../textures/box.png");
     }
     catch(const std::exception& e) {
         Logger::error(e.what());
@@ -88,36 +91,8 @@ int main() {
     glEnable(GL_MULTISAMPLE);
 
 
-//    // =============================================================================================
-//    float vertices[] = {
-//            1.0f,  1.0f,  // top right
-//            0.5f, -0.5f,  // bottom right
-//            -0.5f, -0.5f,  // bottom left
-//            -0.5f,  0.5f   // top left
-//    };
-//    unsigned int indices[] = {  // note that we start from 0!
-//            0, 1, 3,  // first Triangle
-//            1, 2, 3   // second Triangle
-//    };
-//    unsigned int VBO, VAO, EBO;
-//    glGenVertexArrays(1, &VAO);
-//    glGenBuffers(1, &VBO);
-//    glGenBuffers(1, &EBO);
-//    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-//    glBindVertexArray(VAO);
-//
-//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-//
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-//
-//    GLuint posAttr = glGetAttribLocation(shaders.getShaderProgramId(), "vertexPosition");
-//    glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)nullptr);
-//    glEnableVertexAttribArray(posAttr);
 
-
-
+    // Geometry =====================================================
     Vertex* m_Geometry = new Vertex[4];
     glm::vec2 m_Position = {0.0f, 0.0f};
     glm::vec2 m_WorldSize = {1.0f, 1.0f};
@@ -137,8 +112,8 @@ int main() {
     m_Geometry[1].color.r = 255;
     m_Geometry[1].color.g = 255;
     m_Geometry[1].color.b = 255;
-    m_Geometry[1].uv.u = 1.0f;
-    m_Geometry[1].uv.v = 1.0f;
+    m_Geometry[1].uv.u = 0.0f;
+    m_Geometry[1].uv.v = 0.0f;
 
     // bottom right
     m_Geometry[2].pos.x = m_Position.x + m_WorldSize.x / 2.0f;
@@ -155,8 +130,8 @@ int main() {
     m_Geometry[3].color.r = 255;
     m_Geometry[3].color.g = 255;
     m_Geometry[3].color.b = 255;
-    m_Geometry[3].uv.u = 0.0f;
-    m_Geometry[3].uv.v = 0.0f;
+    m_Geometry[3].uv.u = 1.0f;
+    m_Geometry[3].uv.v = 1.0f;
 
     int* indices = new int[6];
     indices[0] = 3;
@@ -182,37 +157,58 @@ int main() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), indices, GL_STATIC_DRAW);
 
     // =====================================================================================
-    GLuint posAttr = glGetAttribLocation(shaders.getShaderProgramId(), "vertexPosition");
+    // Attributes
+    GLuint posAttr = glGetAttribLocation(shader.getShaderProgramId(), "vertexPosition");
     glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(posAttr);
 
-    GLuint colAttr = glGetAttribLocation(shaders.getShaderProgramId(), "vertexColor");
+    GLuint colAttr = glGetAttribLocation(shader.getShaderProgramId(), "vertexColor");
     glVertexAttribPointer(colAttr, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)8);
     glEnableVertexAttribArray(colAttr);
 
-    GLuint uvAttr = glGetAttribLocation(shaders.getShaderProgramId(), "vertexUV");
-    glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)24);
+    GLuint uvAttr = glGetAttribLocation(shader.getShaderProgramId(), "vertexUV");
+    glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)12);
     glEnableVertexAttribArray(uvAttr);
 
     // =====================================================================================
+    // Send texture to Uniform
+    glUseProgram(shader.getShaderProgramId());
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    GLuint textureLocation = shader.getUniformLocation("textureSampler");
+    if (textureLocation == GL_INVALID_INDEX) {
+        throw std::runtime_error("textureLocation uniform INV INDEX");
+    }
+    glUniform1i(textureLocation, 0);
 
+
+    // =====================================================================================
+    // Render loop
     while(gameState != GameState::EXIT) {
         inputSystem();
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shaders.getShaderProgramId());
+        glUseProgram(shader.getShaderProgramId());
+
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
 
-//         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
-
-//        // enable shader attributes
-//        glDisableVertexAttribArray(posAttr);
-//        glDisableVertexAttribArray(colAttr);
-//        glDisableVertexAttribArray(uvAttr);
+//        glBindVertexArray(vao);
+//
+////        glActiveTexture(GL_TEXTURE0);
+//        glBindTexture(GL_TEXTURE_2D, shaders.getTextureID());
+//        GLuint textureLocation = shaders.getUniformLocation("textureSampler");
+//        if (textureLocation == GL_INVALID_INDEX) {
+//            throw std::runtime_error("textureLocation uniform INV INDEX");
+//        }
+//        glUniform1i(textureLocation, 0);
+//
+//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+//        glBindVertexArray(0);
+//        glBindTexture(GL_TEXTURE_2D, 0);
 
         // swap buffers and draw everything on the screen
         SDL_GL_SwapWindow(window);
