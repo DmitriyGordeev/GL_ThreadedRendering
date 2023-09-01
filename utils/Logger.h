@@ -4,14 +4,18 @@
 #include <string>
 #include <memory>
 
+/** Logger is a singleton class */
 class Logger {
 public:
-//    static void info(const std::string& message);
-//    static void error(const std::string& message);
 
     static std::weak_ptr<Logger> getLogger();
-    static std::shared_ptr<Logger> m_Instance;
+
+    static void info(const std::string& message);
+
+    static void error(const std::string& message);
+
 protected:
+    static std::shared_ptr<Logger> m_Instance;
     Logger() = default;
 
 };
