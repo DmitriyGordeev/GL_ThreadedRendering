@@ -16,6 +16,23 @@ include_directories(thirdparty/glew-1.9.0-win64/glew-1.9.0/include)
 include_directories(thirdparty/glm/glm/)
 include_directories(thirdparty/SDL2-2.0.12/include)
 
+# 2.5 Catch2 ---------------------------------------------------------
+Include(FetchContent)
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v2.13.1)
+
+FetchContent_MakeAvailable(Catch2)
+
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/contrib)
+include(CTest)
+include(Catch)
+include_directories(${catch2_SOURCE_DIR}/include/)
+
+add_subdirectory(test/)
+# ------------------------------------------------------------------
+
 # 3. OpenGL:
 find_package(OpenGL REQUIRED)
 include_directories( ${OPENGL_INCLUDE_DIRS})
@@ -35,8 +52,7 @@ target_link_libraries(ColliderGame
         glew32.lib
         glew32s.lib)
 
-
-# ========== TEST SETUP ===============
+# ========== gl_test ===============
 add_executable(TestGL gl_test.cpp
         core/Shaders.cpp
         core/Logger.cpp
@@ -50,3 +66,6 @@ target_link_libraries(TestGL
         SDL2main.lib
         glew32.lib
         glew32s.lib)
+
+
+
