@@ -12,6 +12,7 @@
 using std::cout;
 using std::endl;
 
+std::shared_ptr<Logger> Logger::m_Instance = nullptr;
 
 int main(int argc, char** argv) {
 

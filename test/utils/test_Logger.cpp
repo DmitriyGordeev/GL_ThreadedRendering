@@ -19,8 +19,14 @@ TEST_CASE( "Logger_1", "[getLogger()]" ) {
     REQUIRE(TestLogger::test_getInstance() != nullptr);
 }
 
-TEST_CASE( "Logger_2", "[info/error()]" ) {
+TEST_CASE( "Logger_2", "[info]" ) {
     REQUIRE(TestLogger::test_getInstance() == nullptr);
     TestLogger::info("info");
+    REQUIRE(TestLogger::test_getInstance() != nullptr);
+}
+
+TEST_CASE( "Logger_3", "[error]" ) {
+    REQUIRE(TestLogger::test_getInstance() == nullptr);
+    TestLogger::error("error");
     REQUIRE(TestLogger::test_getInstance() != nullptr);
 }
