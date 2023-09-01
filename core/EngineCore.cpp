@@ -139,10 +139,6 @@ void EngineCore::updateInputSystem() {
 
 
 void EngineCore::handleKeyBindings() {
-//    if (m_InputSystem->isKeyPressed(SDLK_w)) {
-//        Logger::info("W pressed");
-//    }
-
     float CamSpeed = 5.0f;
     float ScaleSpeed = 0.02f;
 

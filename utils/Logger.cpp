@@ -15,7 +15,10 @@ std::weak_ptr<Logger> Logger::getLogger() {
     if (instance)
         return instance;
 
-    std::shared_ptr<Logger> logger;
+    std::shared_ptr<Logger> logger(new Logger(), [](Logger* obj) {
+        if (obj->m_OFstream)
+            obj->m_OFstream->close();
+    });
     m_Instance = logger;
     return logger;
 }
@@ -25,7 +28,10 @@ std::weak_ptr<Logger> Logger::getFileLogger(const std::string& logFilePath) {
     if (instance)
         return instance;
 
-    std::shared_ptr<Logger> logger(new Logger(logFilePath), [](Logger* obj){
+    std::shared_ptr<Logger> logger(new Logger(logFilePath),
+                                   [](Logger* obj){
+        // Custom deleter for the shared_ptr -
+        // need to close ofstream manually on Logger's deletion
         if (obj->m_OFstream)
             obj->m_OFstream->close();
     });
