@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 #include "Logger.h"
-
+#include <fstream>
 
 class TestLogger: public Logger {
 public:
@@ -28,5 +28,12 @@ TEST_CASE( "Logger_2", "[info]" ) {
 TEST_CASE( "Logger_3", "[error]" ) {
     REQUIRE(TestLogger::test_getInstance() == nullptr);
     TestLogger::error("error");
+    REQUIRE(TestLogger::test_getInstance() != nullptr);
+}
+
+TEST_CASE("WriteToFile", "[write()]") {
+    REQUIRE(TestLogger::test_getInstance() == nullptr);
+    TestLogger::getFileLogger("test_file_logger.log");
+    TestLogger::info("Something");
     REQUIRE(TestLogger::test_getInstance() != nullptr);
 }
