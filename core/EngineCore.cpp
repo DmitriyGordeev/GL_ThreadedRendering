@@ -65,7 +65,6 @@ void EngineCore::createWindow(int width, int height) {
         m_GameStatus = GameState::EXIT;
     }
 
-    // TODO: prepare scene() -----------------------------------------------
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     //  Enable Alpha Blend
@@ -75,18 +74,19 @@ void EngineCore::createWindow(int width, int height) {
     //  Anti-Aliasing:
     glEnable(GL_MULTISAMPLE);
 
-    // TODO: createScene()
-    m_Camera->init(width, height);
 
-    // Create first object and apply shader [0]
+    // ==============================================================================
+    // prepare scene
+    m_Camera->init(width, height);
+    m_Scene = std::make_shared<Scene>();
+
     auto object = std::make_shared<Object>();
     object->applyShader(m_Shaders[0]);
-    m_Objects.emplace_back(std::move(object));
+    m_Scene->add(object);
 
-    // Create second object and apply shader [1]
     object = std::make_shared<Object>(glm::vec2(100, 100), glm::vec2(50, 50));
     object->applyShader(m_Shaders[1]);
-    m_Objects.emplace_back(std::move(object));
+    m_Scene->add(object);
 }
 
 
@@ -199,9 +199,10 @@ void EngineCore::renderFrame() {
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Get updated camera matrix
     glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
 
-    // Update uniforms for all shaders
+    // 1. Update uniforms for all shaders
     for(auto& shader : m_Shaders) {
         glUseProgram(shader->getShaderProgramId());
 
@@ -210,9 +211,12 @@ void EngineCore::renderFrame() {
         glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
     }
 
-    // Render objects
-    for(auto& obj : m_Objects)
-        obj->render();
+
+    // 2. Render objects
+//    for(auto& obj : m_Objects)
+//        obj->render();
+
+    m_Scene->render();
 
     // swap buffers and draw everything on the screen
     SDL_GL_SwapWindow(m_Window);

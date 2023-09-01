@@ -20,7 +20,5 @@ int main(int argc, char** argv) {
     core.createWindow(640, 480);
     core.gameLoop();
 
-//    GLuint id = TextureLoader::loadTexture("../textures/box.png");
-
     return 0;
 }

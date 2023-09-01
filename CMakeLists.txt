@@ -30,7 +30,7 @@ include(CTest)
 include(Catch)
 include_directories(${catch2_SOURCE_DIR}/include/)
 
-add_subdirectory(test/)
+
 # ------------------------------------------------------------------
 
 # 3. OpenGL:
@@ -42,6 +42,8 @@ link_directories(thirdparty/SDL2-2.0.12/lib/x64/)
 
 # 5. GLEW library path
 link_directories(thirdparty/glew-1.9.0-win64/glew-1.9.0/lib)
+
+add_subdirectory(test/)
 
 # 6. Create executable
 add_executable(ColliderGame main.cpp ${SRC})

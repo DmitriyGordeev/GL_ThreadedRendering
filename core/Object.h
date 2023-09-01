@@ -20,6 +20,8 @@ public:
 
     void render();
 
+    void setObjectID(unsigned long id) { m_ObjectID = id; }
+
 protected:
     void buildBuffers();
 
@@ -27,8 +29,6 @@ protected:
     GLuint m_VaoID {0};
     GLuint m_VboID {0};
     GLuint m_IboID {0};
-
-//    GLuint m_TextureID {0};
 
     glm::vec2 m_Position {0.0f, 0.0f};
     glm::vec2 m_WorldSize {100.0f, 100.0f};
@@ -38,6 +38,8 @@ protected:
 
     /* current object's associated material */
     std::weak_ptr<Shaders> m_ShaderRef;
+
+    unsigned long m_ObjectID {0};
 };
 
 

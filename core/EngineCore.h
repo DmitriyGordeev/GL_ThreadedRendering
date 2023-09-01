@@ -11,6 +11,7 @@
 #include "Shaders.h"
 #include "Camera.h"
 #include "Object.h"
+#include "Scene.h"
 
 enum class GameState {RUNNING, EXIT};
 
@@ -40,9 +41,8 @@ protected:
     GameState m_GameStatus {GameState::RUNNING};
 
     std::shared_ptr<Camera> m_Camera;
-
     std::vector<std::shared_ptr<Shaders>> m_Shaders;
-    std::vector<std::shared_ptr<Object>> m_Objects;
+    std::shared_ptr<Scene> m_Scene;
 };
 
 

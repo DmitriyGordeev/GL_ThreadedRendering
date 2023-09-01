@@ -128,12 +128,12 @@ void Object::applyShader(const std::shared_ptr<Shaders>& shader) {
     m_ShaderRef = shader;
 
     glBindVertexArray(m_VaoID);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VboID); // обязательно?
+    glBindBuffer(GL_ARRAY_BUFFER, m_VboID);
 
     shader->setupAttributes();
 
     glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);       // обязательно?
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Object::render() {
