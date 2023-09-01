@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <SDL.h>
-#include <Logger.h>
+#include "Logger.h"
 
 class GLContext {
 public:

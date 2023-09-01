@@ -55,7 +55,7 @@ target_link_libraries(ColliderGame
 # ========== gl_test ===============
 add_executable(TestGL gl_test.cpp
         core/Shaders.cpp
-        core/Logger.cpp
+        utils/Logger.cpp
         core/Camera.cpp
         utils/picoPNG.cpp
         utils/IO.cpp
