@@ -22,14 +22,14 @@ public:
 
     void createWindow(int width, int height);
 
-    /* updates InputSystem's state with processed SDL events */
+    /** updates InputSystem's state with processed SDL events */
     void updateInputSystem();
 
     /* utilizes InputSystem's state to take
      * action depending on currently pressed keys */
     void handleKeyBindings();
 
-    /* Stores execution of the main game loop */
+    /** Stores execution of the main game loop */
     void gameLoop();
 
     void renderFrame();

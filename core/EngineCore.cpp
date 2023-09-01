@@ -20,7 +20,7 @@ EngineCore::~EngineCore() {
 
 void EngineCore::createWindow(int width, int height) {
     m_Window = SDL_CreateWindow(
-        "Collider",
+        "ATOMS",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         width,
@@ -211,11 +211,7 @@ void EngineCore::renderFrame() {
         glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
     }
 
-
     // 2. Render objects
-//    for(auto& obj : m_Objects)
-//        obj->render();
-
     m_Scene->render();
 
     // swap buffers and draw everything on the screen
