@@ -80,13 +80,11 @@ void EngineCore::createWindow(int width, int height) {
     m_Camera->init(width, height);
     m_Scene = std::make_shared<Scene>();
 
-    auto object = std::make_shared<Object>();
-    object->applyShader(m_Shaders[0]);
-    m_Scene->add(object);
-
-    object = std::make_shared<Object>(glm::vec2(100, 100), glm::vec2(50, 50));
-    object->applyShader(m_Shaders[1]);
-    m_Scene->add(object);
+    // Create and add objects to the scene
+    m_Scene->createObject<Object>(m_Shaders[0]);
+    m_Scene->createObject<Object>(m_Shaders[1],
+                                  glm::vec2(100, 100),
+                                  glm::vec2(50, 50));
 }
 
 

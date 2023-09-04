@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include "Object.h"
+#include "Logger.h"
 
 class Scene {
 public:
@@ -16,9 +17,25 @@ public:
     /** Renders all objects that Scene holds */
     void render();
 
+    /** Acts like an Object factory:
+     * constructs object with perfect forwarding mechanism and
+     * adds to the Scene's map(id -> Object ref) */
+    template <class O, class ...Args>
+    unsigned long createObject(const std::shared_ptr<Shaders>& shader,
+                                      Args&& ...args) {
+        if (!shader) {
+            Logger::error("[Scene::createObject] shader is null");
+            return 0;
+        }
+
+        std::shared_ptr<Object> pObj = std::make_shared<O>(args...);
+        pObj->applyShader(shader);
+        return add(pObj);
+    }
+
 protected:
     std::map<unsigned long, std::shared_ptr<Object>> m_Objects;
-    unsigned long m_CurrentID {0};
+    unsigned long m_GlobalObjectCounterID {0};
 };
 
 
