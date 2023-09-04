@@ -20,7 +20,7 @@ EngineCore::~EngineCore() {
 
 void EngineCore::createWindow(int width, int height) {
     m_Window = SDL_CreateWindow(
-        "ATOMS",
+        "ColliderGame",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         width,

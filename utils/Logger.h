@@ -15,6 +15,8 @@ public:
 
     static void info(const std::string& message);
 
+    static void warning(const std::string& message);
+
     static void error(const std::string& message);
 
 protected:
@@ -23,6 +25,7 @@ protected:
     virtual ~Logger();
 
     void fileInfo(const std::string& message);
+    void fileWarning(const std::string& message);
     void fileError(const std::string& message);
 
 protected:

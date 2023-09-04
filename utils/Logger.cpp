@@ -45,6 +45,12 @@ void Logger::info(const std::string& message) {
     logger.lock()->fileInfo(message);
 }
 
+void Logger::warning(const std::string& message) {
+    auto logger = getLogger();
+    cout << "[WARNING] " << message << "\n";
+    logger.lock()->fileWarning(message);
+}
+
 void Logger::error(const std::string& message) {
     auto logger = getLogger();
     cout << "[ERROR] " << message << "\n";
@@ -54,6 +60,11 @@ void Logger::error(const std::string& message) {
 void Logger::fileInfo(const std::string& message) {
     if (m_OFstream)
         (*m_OFstream) << "[INFO] " << message << "\n";
+}
+
+void Logger::fileWarning(const std::string& message) {
+    if (m_OFstream)
+        (*m_OFstream) << "[WARNING] " << message << "\n";
 }
 
 void Logger::fileError(const std::string& message) {

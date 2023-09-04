@@ -117,10 +117,11 @@ void Object::applyShader(const std::shared_ptr<Shaders>& shader) {
         return;
     }
 
-    // if shader's attributes has been initialized before
+    // if shader's attributes have been initialized before
     if (shader->getPositionAttrID() != -1 ||
         shader->getColorAttributeID() != -1 ||
         shader->getUVAttributeID() != -1) {
+        Logger::warning("Shader attributes have been initialized before");
         return;
     }
 
