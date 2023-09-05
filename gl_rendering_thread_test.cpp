@@ -3,6 +3,7 @@
 #include <gl/glew.h>
 #include <SDL.h>
 #include <mutex>
+#include <deque>
 
 #undef main
 
@@ -10,7 +11,7 @@
 #include "Shaders.h"
 #include "Vertex.h"
 #include "Camera.h"
-#include "TextureLoader.h"
+#include "Object.h"
 
 using std::cout;
 using std::endl;
@@ -67,39 +68,31 @@ public:
 
             prepareCanvas();
 
-            while(!m_Running || m_ShouldAcceptGeometry) {
-                Logger::info("Blocked");
-                if (m_ShouldAcceptGeometry) {
-                    m_Mutex.lock();
-
-                    createGeometry();
-
-                    m_ShouldAcceptGeometry = false;
-                    m_Mutex.unlock();
-                }
-            }
-
             while (gameState != GameState::EXIT) {
                 Logger::info("Render loop");
                 glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
 
+                // Process queue
+                if (!m_ObjectsQueue.empty()) {
+                    Logger::info("Queue size before processing = " + std::to_string(
+                            m_ObjectsScene.size()
+                    ));
 
-                if (m_ShouldAcceptGeometry) {
-                    m_Mutex.lock();
-                    createGeometry();
-                    m_ShouldAcceptGeometry = false;
-                    m_Mutex.unlock();
+                    Object* obj = m_ObjectsQueue.front();
+                    obj->buildBuffers();
+                    obj->applyShader(m_Shader);
+                    obj->render();
+                    m_ObjectsScene.push_back(obj);
+                    m_ObjectsQueue.pop_front();
+
+                    Logger::info("Queue size after processing = " + std::to_string(
+                            m_ObjectsScene.size()
+                            ));
                 }
 
-                Logger::info("m_VAO = " + std::to_string(m_VAO));
-                Logger::info("ShaderID = " + std::to_string(m_Shader->getShaderProgramId()));
-                if (m_VAO) {
-                    glUseProgram(m_Shader->getShaderProgramId());
-                    glBindVertexArray(m_VAO);
-                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-                    glBindVertexArray(0);
-                }
+                for(auto& obj : m_ObjectsScene)
+                    obj->render();
 
                 // swap buffers and draw everything on the screen
                 SDL_GL_SwapWindow(window);
@@ -141,7 +134,7 @@ public:
         if (m_Shader)
             return;
 
-        m_Shader = new Shaders();
+        m_Shader = std::make_shared<Shaders>();
         try {
             m_Shader->compile("../shaders/test_vert.vs", "../shaders/test_frag.fs");
             m_Shader->link();
@@ -153,87 +146,24 @@ public:
         }
     }
 
-    void createGeometry() {
-        if (!m_Geometry || !m_Indices) {
-            Logger::error("RenderThread.createGeometry() : Geometry or Indices are null");
-            return;
-        }
-
-        Logger::info("Creating buffers");
-
-        glGenVertexArrays(1, &m_VAO);
-        glBindVertexArray(m_VAO);
-
-//        GLuint vbo;
-        glGenBuffers(1, &m_VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), m_Geometry, GL_STATIC_DRAW);
-
-//        GLuint ibo;
-        glGenBuffers(1, &m_IBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), m_Indices, GL_STATIC_DRAW);
-
-        // =====================================================================================
-        // Attributes
-        GLuint posAttr = glGetAttribLocation(m_Shader->getShaderProgramId(), "vertexPosition");
-        glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-        glEnableVertexAttribArray(posAttr);
-
-        GLuint colAttr = glGetAttribLocation(m_Shader->getShaderProgramId(), "vertexColor");
-        glVertexAttribPointer(colAttr, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)8);
-        glEnableVertexAttribArray(colAttr);
-
-        GLuint uvAttr = glGetAttribLocation(m_Shader->getShaderProgramId(), "vertexUV");
-        glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)12);
-        glEnableVertexAttribArray(uvAttr);
-
-        Logger::info("Buffers created");
-
-        // --------------------------------------------------------------------------------
-        // Send shader's texture to uniform
-        glUseProgram(m_Shader->getShaderProgramId());
-        glActiveTexture(GL_TEXTURE0);
-        Logger::info("TextureID = " + std::to_string(m_Shader->getTextureID()));
-        glBindTexture(GL_TEXTURE_2D, m_Shader->getTextureID());
-        GLuint textureLocation = m_Shader->getUniformLocation("textureSampler");
-        if (textureLocation == GL_INVALID_INDEX) {
-            throw std::runtime_error("textureLocation uniform INV INDEX");
-        }
-        glUniform1i(textureLocation, 0);
-
-        Logger::info("Shader uniform sent");
-    }
-
-    void addObject(Vertex* geometry, int* indices) {
+    void addObject(Object* object) {
         m_Mutex.lock();
-        if (!geometry || !indices)
-            return;
-
-        m_ShouldAcceptGeometry = true;
-        m_Geometry = geometry;
-        m_Indices = indices;
+        m_ObjectsQueue.push_back(object);
         m_Mutex.unlock();
     }
-
-
 
 protected:
     SDL_Window *m_Window;
     SDL_GLContext m_GlContext;
     std::thread m_Thread;
     std::exception_ptr m_ExceptionPtr;
-    Shaders *m_Shader{nullptr};
+    std::shared_ptr<Shaders> m_Shader {nullptr};
 
     bool m_Running {false};
-    bool m_ShouldAcceptGeometry {false};
-    Vertex* m_Geometry {nullptr};
-    int* m_Indices {nullptr};
     std::mutex m_Mutex;
 
-    GLuint m_VAO {0};
-    GLuint m_VBO {0};
-    GLuint m_IBO {0};
+    std::vector<Object*> m_ObjectsScene;
+    std::deque<Object*> m_ObjectsQueue;
 };
 
 std::shared_ptr<class Logger> Logger::m_Instance = nullptr;
@@ -257,55 +187,6 @@ void handleInput() {
 }
 
 
-void createGeometry(Vertex* geometry, int* indices) {
-    glm::vec2 m_Position = {0.0f, 0.0f};
-    glm::vec2 m_WorldSize = {1.0f, 1.0f};
-
-    // top left
-    geometry[0].pos.x = m_Position.x - m_WorldSize.x / 2.0f;
-    geometry[0].pos.y = m_Position.y + m_WorldSize.y / 2.0f;
-    geometry[0].color.r = 0;
-    geometry[0].color.g = 20;
-    geometry[0].color.b = 0;
-    geometry[0].uv.u = 0.0f;
-    geometry[0].uv.v = 1.0f;
-
-    // bottom left
-    geometry[1].pos.x = m_Position.x - m_WorldSize.x / 2.0f;
-    geometry[1].pos.y = m_Position.y - m_WorldSize.y / 2.0f;
-    geometry[1].color.r = 255;
-    geometry[1].color.g = 255;
-    geometry[1].color.b = 255;
-    geometry[1].uv.u = 0.0f;
-    geometry[1].uv.v = 0.0f;
-
-    // bottom right
-    geometry[2].pos.x = m_Position.x + m_WorldSize.x / 2.0f;
-    geometry[2].pos.y = m_Position.y - m_WorldSize.y / 2.0f;
-    geometry[2].color.r = 255;
-    geometry[2].color.g = 255;
-    geometry[2].color.b = 255;
-    geometry[2].uv.u = 1.0f;
-    geometry[2].uv.v = 0.0f;
-
-    // top right
-    geometry[3].pos.x = m_Position.x + m_WorldSize.x / 2.0f + 0.1f;
-    geometry[3].pos.y = m_Position.y + m_WorldSize.y / 2.0f;
-    geometry[3].color.r = 255;
-    geometry[3].color.g = 255;
-    geometry[3].color.b = 255;
-    geometry[3].uv.u = 1.0f;
-    geometry[3].uv.v = 1.0f;
-
-//    indices = new int[6];
-    indices[0] = 3;
-    indices[1] = 0;
-    indices[2] = 1;
-    indices[3] = 1;
-    indices[4] = 2;
-    indices[5] = 3;
-}
-
 
 int main() {
 
@@ -324,15 +205,13 @@ int main() {
     if (!window)
         Logger::info("Couldn't create window, SDL_CreateWindow() returned nullptr");
 
+    Object object(glm::vec2(0, 0), glm::vec2(0.5, 2));
 
     RenderingThread renderingThread(window);
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+
     renderingThread.startRenderingLoop();
 
-    Vertex* geometry = new Vertex[4];
-    int* indices = new int[6];
-    createGeometry(geometry, indices);
-    renderingThread.addObject(geometry, indices);
+    renderingThread.addObject(&object);
 
     while (gameState != GameState::EXIT) {
         handleInput();

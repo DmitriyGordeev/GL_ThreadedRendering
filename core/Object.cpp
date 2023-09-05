@@ -62,8 +62,6 @@ void Object::createGeometry() {
     m_Geometry[3].color.b = 255;
     m_Geometry[3].uv.u = 1.0f;
     m_Geometry[3].uv.v = 1.0f;
-
-    buildBuffers();
 }
 
 void Object::buildBuffers() {
@@ -122,6 +120,11 @@ void Object::applyShader(const std::shared_ptr<Shaders>& shader) {
         shader->getColorAttributeID() != -1 ||
         shader->getUVAttributeID() != -1) {
         Logger::warning("Shader attributes have been initialized before");
+        return;
+    }
+
+    if (m_VaoID == 0) {
+        Logger::error("Object::buildBuffer() seems wasn't called before applying a shader");
         return;
     }
 

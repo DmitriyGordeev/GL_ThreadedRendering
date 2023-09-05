@@ -14,16 +14,16 @@ public:
 
     virtual ~Object();
 
-    void createGeometry();
-
     void applyShader(const std::shared_ptr<Shaders>& shader);
 
     void render();
 
     void setObjectID(unsigned long id) { m_ObjectID = id; }
 
-protected:
     void buildBuffers();
+
+protected:
+    void createGeometry();
 
 protected:
     GLuint m_VaoID {0};

@@ -77,7 +77,8 @@ add_executable(RenderingThread gl_rendering_thread_test.cpp
         core/Camera.cpp
         utils/picoPNG.cpp
         utils/IO.cpp
-        core/TextureLoader.cpp)
+        core/TextureLoader.cpp
+        core/Object.cpp)
 target_link_libraries(RenderingThread
         ${OPENGL_LIBRARIES}
         SDL2.lib
