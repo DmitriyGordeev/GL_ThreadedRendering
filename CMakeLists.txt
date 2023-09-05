@@ -70,4 +70,19 @@ target_link_libraries(TestGL
         glew32s.lib)
 
 
+# ========== gl_rendering_thread_test ===============
+add_executable(RenderingThread gl_rendering_thread_test.cpp
+        core/Shaders.cpp
+        utils/Logger.cpp
+        core/Camera.cpp
+        utils/picoPNG.cpp
+        utils/IO.cpp
+        core/TextureLoader.cpp)
+target_link_libraries(RenderingThread
+        ${OPENGL_LIBRARIES}
+        SDL2.lib
+        SDL2main.lib
+        glew32.lib
+        glew32s.lib)
+
 
