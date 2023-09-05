@@ -31,7 +31,10 @@ public:
             throw std::runtime_error("Couldn't create window");
         }
 
-        m_Thread = std::thread([this, &window] {
+        // &window - неправильно, потому что после выхода из конструктора
+        // указатель window будет убран из стека, а тред будет на нее ссылаться
+        // нужно делать капчур по значению (копировать)
+        m_Thread = std::thread([this, window] {
 
             // 1. Create GL context ----------------
             m_Window = window;
@@ -59,22 +62,22 @@ public:
                 m_ExceptionPtr = std::current_exception();
             }
 
-//            Logger::info("Create shader");
-//            createShader();
+            Logger::info("Create shader");
+            createShader();
 
-//            prepareCanvas();
+            prepareCanvas();
 
-//            while(!m_Running || m_ShouldAcceptGeometry) {
-//                Logger::info("Blocked");
-//                if (m_ShouldAcceptGeometry) {
-//                    m_Mutex.lock();
-//
-//                    createGeometry();
-//                    m_ShouldAcceptGeometry = false;
-//
-//                    m_Mutex.unlock();
-//                }
-//            }
+            while(!m_Running || m_ShouldAcceptGeometry) {
+                Logger::info("Blocked");
+                if (m_ShouldAcceptGeometry) {
+                    m_Mutex.lock();
+
+                    createGeometry();
+
+                    m_ShouldAcceptGeometry = false;
+                    m_Mutex.unlock();
+                }
+            }
 
             while (gameState != GameState::EXIT) {
                 Logger::info("Render loop");
@@ -82,15 +85,21 @@ public:
                 glClear(GL_COLOR_BUFFER_BIT);
 
 
+                if (m_ShouldAcceptGeometry) {
+                    m_Mutex.lock();
+                    createGeometry();
+                    m_ShouldAcceptGeometry = false;
+                    m_Mutex.unlock();
+                }
 
-//                Logger::info("m_VAO = " + std::to_string(m_VAO));
-//                Logger::info("ShaderID = " + std::to_string(m_Shader->getShaderProgramId()));
-//                if (m_VAO) {
-//                    glUseProgram(m_Shader->getShaderProgramId());
-//                    glBindVertexArray(m_VAO);
-//                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-//                    glBindVertexArray(0);
-//                }
+                Logger::info("m_VAO = " + std::to_string(m_VAO));
+                Logger::info("ShaderID = " + std::to_string(m_Shader->getShaderProgramId()));
+                if (m_VAO) {
+                    glUseProgram(m_Shader->getShaderProgramId());
+                    glBindVertexArray(m_VAO);
+                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+                    glBindVertexArray(0);
+                }
 
                 // swap buffers and draw everything on the screen
                 SDL_GL_SwapWindow(window);
@@ -317,14 +326,14 @@ int main() {
 
 
     RenderingThread renderingThread(window);
-
-    // TODO: если раскомментить - рендерится белый экран!
-//    Vertex* geometry = new Vertex[4];
-//    int* indices = new int[6];
-//    createGeometry(geometry, indices);
-//    renderingThread.addObject(geometry, indices);
-
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     renderingThread.startRenderingLoop();
+
+    Vertex* geometry = new Vertex[4];
+    int* indices = new int[6];
+    createGeometry(geometry, indices);
+    renderingThread.addObject(geometry, indices);
+
     while (gameState != GameState::EXIT) {
         handleInput();
     }
