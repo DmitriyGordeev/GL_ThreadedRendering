@@ -2,7 +2,9 @@
 #include <thread>
 #include <gl/glew.h>
 #include <SDL.h>
+
 #undef main
+
 #include "Logger.h"
 #include "Shaders.h"
 #include "Vertex.h"
@@ -22,14 +24,11 @@ GameState gameState = GameState::RUNNING;
 
 class RenderingThread {
 public:
-    RenderingThread(SDL_Window* window) {
-        if (!window) {
-//            Logger::error("[GLContext] Couldn't create window");
-//            return;
+    explicit RenderingThread(SDL_Window *window) {
+        if (!window)
             throw std::runtime_error("Couldn't create window");
-        }
 
-        m_Thread = std::thread([this, &window]{
+        m_Thread = std::thread([this, &window] {
 
             // 1. Create GL context ----------------
             m_Window = window;
@@ -38,7 +37,7 @@ public:
                 if (m_GlContext == nullptr)
                     throw std::runtime_error("SDL_GL_CreateContext returned nullptr");
             }
-            catch(const std::exception& e) {
+            catch (const std::exception &e) {
                 m_ExceptionPtr = std::current_exception();
             }
 
@@ -48,22 +47,27 @@ public:
                 if (error != GLEW_OK)
                     throw std::runtime_error("glewInit() != GLEW_OK");
             }
-            catch(const std::exception& e) {
+            catch (const std::exception &e) {
                 m_ExceptionPtr = std::current_exception();
             }
 
+            createShader();
+
             prepareCanvas();
 
-            // TODO: SDL poll event
+            createGeometry();
+
             // TODO: Geometry - VBO, VAO ? - один раз вначале
 
-            while(gameState != GameState::EXIT) {
-                Logger::info("rendering loop");
+            while (gameState != GameState::EXIT) {
                 glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
 
+                glUseProgram(m_Shader->getShaderProgramId());
 
-
+                glBindVertexArray(m_VAO);
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+                glBindVertexArray(0);
 
                 // swap buffers and draw everything on the screen
                 SDL_GL_SwapWindow(window);
@@ -81,12 +85,12 @@ public:
             if (m_ExceptionPtr)
                 std::rethrow_exception(m_ExceptionPtr);
         }
-        catch(const std::exception& e) {
+        catch (const std::exception &e) {
             Logger::error(e.what());
         }
     }
 
-    RenderingThread(const RenderingThread&) = delete;
+    RenderingThread(const RenderingThread &) = delete;
 
     void prepareCanvas() {
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -95,54 +99,129 @@ public:
         glEnable(GL_MULTISAMPLE);
     }
 
+    void createShader() {
+        if (m_Shader)
+            return;
+
+        m_Shader = new Shaders();
+        try {
+            m_Shader->compile("../shaders/test_vert.vs", "../shaders/test_frag.fs");
+            m_Shader->link();
+            m_Shader->loadTexture("../textures/box.png");
+        }
+        catch (const std::exception &e) {
+            Logger::error(e.what());
+            gameState = GameState::EXIT;
+        }
+    }
+
+
+    void createGeometry() {
+        // Geometry =====================================================
+        Vertex* geometry = new Vertex[4];
+        glm::vec2 m_Position = {0.0f, 0.0f};
+        glm::vec2 m_WorldSize = {1.0f, 1.0f};
+
+        // top left
+        geometry[0].pos.x = m_Position.x - m_WorldSize.x / 2.0f;
+        geometry[0].pos.y = m_Position.y + m_WorldSize.y / 2.0f;
+        geometry[0].color.r = 0;
+        geometry[0].color.g = 20;
+        geometry[0].color.b = 0;
+        geometry[0].uv.u = 0.0f;
+        geometry[0].uv.v = 1.0f;
+
+        // bottom left
+        geometry[1].pos.x = m_Position.x - m_WorldSize.x / 2.0f;
+        geometry[1].pos.y = m_Position.y - m_WorldSize.y / 2.0f;
+        geometry[1].color.r = 255;
+        geometry[1].color.g = 255;
+        geometry[1].color.b = 255;
+        geometry[1].uv.u = 0.0f;
+        geometry[1].uv.v = 0.0f;
+
+        // bottom right
+        geometry[2].pos.x = m_Position.x + m_WorldSize.x / 2.0f;
+        geometry[2].pos.y = m_Position.y - m_WorldSize.y / 2.0f;
+        geometry[2].color.r = 255;
+        geometry[2].color.g = 255;
+        geometry[2].color.b = 255;
+        geometry[2].uv.u = 1.0f;
+        geometry[2].uv.v = 0.0f;
+
+        // top right
+        geometry[3].pos.x = m_Position.x + m_WorldSize.x / 2.0f + 0.1f;
+        geometry[3].pos.y = m_Position.y + m_WorldSize.y / 2.0f;
+        geometry[3].color.r = 255;
+        geometry[3].color.g = 255;
+        geometry[3].color.b = 255;
+        geometry[3].uv.u = 1.0f;
+        geometry[3].uv.v = 1.0f;
+
+        int* indices = new int[6];
+        indices[0] = 3;
+        indices[1] = 0;
+        indices[2] = 1;
+        indices[3] = 1;
+        indices[4] = 2;
+        indices[5] = 3;
+
+        glGenVertexArrays(1, &m_VAO);
+        glBindVertexArray(m_VAO);
+
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), geometry, GL_STATIC_DRAW);
+
+        GLuint ibo;
+        glGenBuffers(1, &ibo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), indices, GL_STATIC_DRAW);
+
+        // =====================================================================================
+        // Attributes
+        GLuint posAttr = glGetAttribLocation(m_Shader->getShaderProgramId(), "vertexPosition");
+        glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glEnableVertexAttribArray(posAttr);
+
+        GLuint colAttr = glGetAttribLocation(m_Shader->getShaderProgramId(), "vertexColor");
+        glVertexAttribPointer(colAttr, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)8);
+        glEnableVertexAttribArray(colAttr);
+
+        GLuint uvAttr = glGetAttribLocation(m_Shader->getShaderProgramId(), "vertexUV");
+        glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)12);
+        glEnableVertexAttribArray(uvAttr);
+
+        delete[] geometry;
+
+        // Send shader's texture to uniform
+        glUseProgram(m_Shader->getShaderProgramId());
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_Shader->getTextureID());
+        GLuint textureLocation = m_Shader->getUniformLocation("textureSampler");
+        if (textureLocation == GL_INVALID_INDEX) {
+            throw std::runtime_error("textureLocation uniform INV INDEX");
+        }
+        glUniform1i(textureLocation, 0);
+    }
+
+
 
 protected:
-    SDL_Window* m_Window;
+    SDL_Window *m_Window;
     SDL_GLContext m_GlContext;
     std::thread m_Thread;
     std::exception_ptr m_ExceptionPtr;
+    Shaders *m_Shader{nullptr};
+    GLuint m_VAO {0};
 };
 
 std::shared_ptr<class Logger> Logger::m_Instance = nullptr;
 
-
-//class Object {
-//public:
-//    Object(int a) {
-//        m_thread = std::thread([this, &a]{
-//            try {
-//                if (a == 0)
-//                    throw std::runtime_error("a == 0");
-//                std::this_thread::sleep_for(std::chrono::seconds(2));
-//            }
-//            catch(std::exception e) {
-//                m_ep = std::current_exception();
-//            }
-//        });
-//    }
-//
-//    ~Object() {
-//        m_thread.join();
-//        cout << "Joining thread" << endl;
-//        try
-//        {
-//            rethrow_exception(m_ep);
-//        }
-//        catch(const std::exception& e)
-//        {
-//            cout << e.what() << endl;
-//        }
-//    }
-//
-//protected:
-//    std::thread m_thread;
-//    std::exception_ptr m_ep;
-//};
-
-
 void handleInput() {
     SDL_Event event;
-    while(SDL_PollEvent(&event)) {
+    while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_WINDOWEVENT:
                 switch (event.window.event) {
@@ -164,7 +243,7 @@ int main() {
     SDL_Init(SDL_INIT_EVERYTHING);
     Camera camera;
 
-    SDL_Window* window = SDL_CreateWindow(
+    SDL_Window *window = SDL_CreateWindow(
             "Test RenderingThread",
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
@@ -176,15 +255,13 @@ int main() {
     if (!window)
         Logger::info("Couldn't create window, SDL_CreateWindow() returned nullptr");
 
+
     RenderingThread renderingThread(window);
 
 
-
-    while(gameState != GameState::EXIT) {
+    while (gameState != GameState::EXIT) {
         handleInput();
     }
-
-
 
 
     return 0;

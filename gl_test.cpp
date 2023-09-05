@@ -171,6 +171,8 @@ int main() {
     glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)12);
     glEnableVertexAttribArray(uvAttr);
 
+    delete[] m_Geometry;
+
     // =====================================================================================
     // Send texture to Uniform
     glUseProgram(shader.getShaderProgramId());
