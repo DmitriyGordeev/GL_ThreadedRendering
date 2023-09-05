@@ -59,34 +59,38 @@ public:
                 m_ExceptionPtr = std::current_exception();
             }
 
-            Logger::info("Create shader");
-            createShader();
+//            Logger::info("Create shader");
+//            createShader();
 
-            prepareCanvas();
+//            prepareCanvas();
 
-            while(!m_Running || m_ShouldAcceptGeometry) {
-                Logger::info("Blocked");
-                if (m_ShouldAcceptGeometry) {
-                    m_Mutex.lock();
-
-                    createGeometry();
-                    m_ShouldAcceptGeometry = false;
-
-                    m_Mutex.unlock();
-                }
-            }
+//            while(!m_Running || m_ShouldAcceptGeometry) {
+//                Logger::info("Blocked");
+//                if (m_ShouldAcceptGeometry) {
+//                    m_Mutex.lock();
+//
+//                    createGeometry();
+//                    m_ShouldAcceptGeometry = false;
+//
+//                    m_Mutex.unlock();
+//                }
+//            }
 
             while (gameState != GameState::EXIT) {
                 Logger::info("Render loop");
-                glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+                glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
 
-                if (m_VAO) {
-                    glUseProgram(m_Shader->getShaderProgramId());
-                    glBindVertexArray(m_VAO);
-                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-                    glBindVertexArray(0);
-                }
+
+
+//                Logger::info("m_VAO = " + std::to_string(m_VAO));
+//                Logger::info("ShaderID = " + std::to_string(m_Shader->getShaderProgramId()));
+//                if (m_VAO) {
+//                    glUseProgram(m_Shader->getShaderProgramId());
+//                    glBindVertexArray(m_VAO);
+//                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+//                    glBindVertexArray(0);
+//                }
 
                 // swap buffers and draw everything on the screen
                 SDL_GL_SwapWindow(window);
@@ -113,13 +117,12 @@ public:
 
     RenderingThread(const RenderingThread &) = delete;
 
-
     void startRenderingLoop() {
         m_Running = true;
     }
 
     void prepareCanvas() {
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_MULTISAMPLE);
@@ -182,6 +185,7 @@ public:
         // Send shader's texture to uniform
         glUseProgram(m_Shader->getShaderProgramId());
         glActiveTexture(GL_TEXTURE0);
+        Logger::info("TextureID = " + std::to_string(m_Shader->getTextureID()));
         glBindTexture(GL_TEXTURE_2D, m_Shader->getTextureID());
         GLuint textureLocation = m_Shader->getUniformLocation("textureSampler");
         if (textureLocation == GL_INVALID_INDEX) {
@@ -245,7 +249,6 @@ void handleInput() {
 
 
 void createGeometry(Vertex* geometry, int* indices) {
-//    geometry = new Vertex[4];
     glm::vec2 m_Position = {0.0f, 0.0f};
     glm::vec2 m_WorldSize = {1.0f, 1.0f};
 
@@ -315,20 +318,16 @@ int main() {
 
     RenderingThread renderingThread(window);
 
-//    std::this_thread::sleep_for(std::chrono::seconds(1));
-//    Logger::info("sleep has passed");
-
-    Vertex* geometry = new Vertex[4];
-    int* indices = new int[6];
-    createGeometry(geometry, indices);
-
-    renderingThread.addObject(geometry, indices);
+    // TODO: если раскомментить - рендерится белый экран!
+//    Vertex* geometry = new Vertex[4];
+//    int* indices = new int[6];
+//    createGeometry(geometry, indices);
+//    renderingThread.addObject(geometry, indices);
 
     renderingThread.startRenderingLoop();
     while (gameState != GameState::EXIT) {
         handleInput();
     }
-
 
     return 0;
 }
