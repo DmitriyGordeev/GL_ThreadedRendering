@@ -26,8 +26,10 @@ GameState gameState = GameState::RUNNING;
 class RenderingThread {
 public:
     explicit RenderingThread(SDL_Window *window) {
-        if (!window)
+        if (!window) {
+            Logger::error("Couldn't create window");
             throw std::runtime_error("Couldn't create window");
+        }
 
         m_Thread = std::thread([this, &window] {
 
@@ -35,8 +37,11 @@ public:
             m_Window = window;
             m_GlContext = SDL_GL_CreateContext(window);
             try {
-                if (m_GlContext == nullptr)
+                if (m_GlContext == nullptr) {
+                    Logger::error("SDL_GL_CreateContext return nullptr");
                     throw std::runtime_error("SDL_GL_CreateContext returned nullptr");
+                }
+
             }
             catch (const std::exception &e) {
                 m_ExceptionPtr = std::current_exception();
@@ -45,20 +50,21 @@ public:
             // 2. Init glew --------------------------
             GLenum error = glewInit();
             try {
-                if (error != GLEW_OK)
-                    throw std::runtime_error("glewInit() != GLEW_OK");
+                if (error != GLEW_OK) {
+                    Logger::error("error != GLEW_OK");
+                    throw std::runtime_error("error() != GLEW_OK");
+                }
             }
             catch (const std::exception &e) {
                 m_ExceptionPtr = std::current_exception();
             }
 
+            Logger::info("Create shader");
             createShader();
 
             prepareCanvas();
 
-            // createGeometry();
-
-            while(!m_Running) {
+            while(!m_Running || m_ShouldAcceptGeometry) {
                 Logger::info("Blocked");
                 if (m_ShouldAcceptGeometry) {
                     m_Mutex.lock();
@@ -71,6 +77,7 @@ public:
             }
 
             while (gameState != GameState::EXIT) {
+                Logger::info("Render loop");
                 glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
 
@@ -87,6 +94,8 @@ public:
 
             Logger::info("Rendering thread: QUIT");
         });
+
+        Logger::info("After thread created");
     }
 
     ~RenderingThread() {
@@ -138,6 +147,8 @@ public:
             return;
         }
 
+        Logger::info("Creating buffers");
+
         glGenVertexArrays(1, &m_VAO);
         glBindVertexArray(m_VAO);
 
@@ -165,6 +176,8 @@ public:
         glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)12);
         glEnableVertexAttribArray(uvAttr);
 
+        Logger::info("Buffers created");
+
         // --------------------------------------------------------------------------------
         // Send shader's texture to uniform
         glUseProgram(m_Shader->getShaderProgramId());
@@ -175,6 +188,8 @@ public:
             throw std::runtime_error("textureLocation uniform INV INDEX");
         }
         glUniform1i(textureLocation, 0);
+
+        Logger::info("Shader uniform sent");
     }
 
     void addObject(Vertex* geometry, int* indices) {
@@ -297,12 +312,17 @@ int main() {
     if (!window)
         Logger::info("Couldn't create window, SDL_CreateWindow() returned nullptr");
 
+
+    RenderingThread renderingThread(window);
+
+//    std::this_thread::sleep_for(std::chrono::seconds(1));
+//    Logger::info("sleep has passed");
+
     Vertex* geometry = new Vertex[4];
     int* indices = new int[6];
     createGeometry(geometry, indices);
-    cout << "Main Thread - Geometry created !" << endl;
 
-    RenderingThread renderingThread(window);
+    renderingThread.addObject(geometry, indices);
 
     renderingThread.startRenderingLoop();
     while (gameState != GameState::EXIT) {
