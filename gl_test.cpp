@@ -40,6 +40,7 @@ void inputSystem() {
     }
 }
 
+std::shared_ptr<class Logger> Logger::m_Instance = nullptr;
 
 int main() {
 

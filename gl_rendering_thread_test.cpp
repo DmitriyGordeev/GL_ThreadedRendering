@@ -54,11 +54,13 @@ public:
 
             prepareCanvas();
 
-            while(m_GameState != GameState::EXIT) {
+            // TODO: SDL poll event
+            // TODO: Geometry - VBO, VAO ? - один раз вначале
+
+            while(gameState != GameState::EXIT) {
+                Logger::info("rendering loop");
                 glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
-
-
 
 
 
@@ -67,18 +69,7 @@ public:
                 SDL_GL_SwapWindow(window);
             }
 
-
-
-//            if (m_GlContext == nullptr) {
-//                Logger::error("[GLContext] SDL: GL context could not be created!");
-//                return;
-//            }
-
-//            GLenum error = glewInit();
-//            if (error != GLEW_OK) {
-//                Logger::error("[GLContext] Couldn't initialize glew");
-//                return;
-//            }
+            Logger::info("Rendering thread: QUIT");
         });
     }
 
@@ -86,7 +77,10 @@ public:
         if (m_Thread.joinable())
             m_Thread.join();
 
-        try {std::rethrow_exception(m_ExceptionPtr);}
+        try {
+            if (m_ExceptionPtr)
+                std::rethrow_exception(m_ExceptionPtr);
+        }
         catch(const std::exception& e) {
             Logger::error(e.what());
         }
@@ -106,9 +100,6 @@ protected:
     SDL_Window* m_Window;
     SDL_GLContext m_GlContext;
     std::thread m_Thread;
-
-    GameState m_GameState {GameState::RUNNING};
-
     std::exception_ptr m_ExceptionPtr;
 };
 
@@ -149,6 +140,24 @@ std::shared_ptr<class Logger> Logger::m_Instance = nullptr;
 //};
 
 
+void handleInput() {
+    SDL_Event event;
+    while(SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_WINDOWEVENT:
+                switch (event.window.event) {
+                    case SDL_WINDOWEVENT_CLOSE:
+                        Logger::info("Quit pressed");
+                        gameState = GameState::EXIT;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+        }
+    }
+}
+
 
 int main() {
 
@@ -156,7 +165,7 @@ int main() {
     Camera camera;
 
     SDL_Window* window = SDL_CreateWindow(
-            "TestGL",
+            "Test RenderingThread",
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
             640,
@@ -168,6 +177,12 @@ int main() {
         Logger::info("Couldn't create window, SDL_CreateWindow() returned nullptr");
 
     RenderingThread renderingThread(window);
+
+
+
+    while(gameState != GameState::EXIT) {
+        handleInput();
+    }
 
 
 
