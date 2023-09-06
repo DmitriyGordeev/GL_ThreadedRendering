@@ -4,7 +4,7 @@
 #include "SDL.h"
 #include <mutex>
 #include <deque>
-
+#include <unordered_map>
 #undef main
 
 #include "Logger.h"
@@ -12,16 +12,21 @@
 #include "Vertex.h"
 #include "Camera.h"
 #include "RObject.h"
+#include "InputSystem.h"
 
 using std::cout;
 using std::endl;
 
+constexpr int FPS_MS = 1000 / 60;
 
 enum class GameState {
     RUNNING,
     EXIT
 };
 GameState gameState = GameState::RUNNING;
+
+
+int GameThreadFrameNumber = 0;
 
 
 class RenderingThread {
@@ -68,12 +73,16 @@ public:
 
             prepareCanvas();
 
+            // Rendering loop
             while (gameState != GameState::EXIT) {
+                if (m_FrameRendered >= GameThreadFrameNumber)
+                    continue;
+
                 Logger::info("Render loop");
                 glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
 
-                // Process queue
+                // Process added objects
                 if (!m_ObjectsQueue.empty()) {
                     Logger::info("Queue size before processing = " + std::to_string(
                             m_ObjectsScene.size()
@@ -99,6 +108,8 @@ public:
 
                 // swap buffers and draw everything on the screen
                 SDL_GL_SwapWindow(window);
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(FPS_MS));
                 m_FrameRendered++;
             }
 
@@ -176,10 +187,26 @@ protected:
 
 std::shared_ptr<class Logger> Logger::m_Instance = nullptr;
 
-void handleInput() {
+
+void keyBinding(InputSystem& inputSystem, RObject& object) {
+    if (inputSystem.isKeyPressed(SDLK_w)) {
+        Logger::info("key W");
+        object.move(glm::vec2(0.0f, 0.0001f * FPS_MS));
+    }
+}
+
+void handleInput(InputSystem& inputSystem, RObject& object) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
+            case SDL_KEYDOWN:
+                inputSystem.pressKey(event.key.keysym.sym);
+                break;
+
+            case SDL_KEYUP:
+                inputSystem.releaseKey(event.key.keysym.sym);
+                break;
+
             case SDL_WINDOWEVENT:
                 switch (event.window.event) {
                     case SDL_WINDOWEVENT_CLOSE:
@@ -190,10 +217,12 @@ void handleInput() {
                         break;
                 }
                 break;
+
         }
     }
-}
 
+    keyBinding(inputSystem, object);
+}
 
 
 int main() {
@@ -213,9 +242,9 @@ int main() {
     if (!window)
         Logger::info("Couldn't create window, SDL_CreateWindow() returned nullptr");
 
-    RObject object(glm::vec2(0, 0), glm::vec2(0.05f, 0.05f));
+    InputSystem inputSystem;
 
-    long gameThreadFrame = 0;
+    RObject object(glm::vec2(0, 0), glm::vec2(0.05f, 0.05f));
 
     RenderingThread renderingThread(window);
     renderingThread.startRenderingLoop();
@@ -225,12 +254,15 @@ int main() {
         Logger::info("Rendered frame = "
                     + std::to_string(renderingThread.getRenderedFrame()) +
                     " | Game thread frame = "
-                    + std::to_string(gameThreadFrame));
+                    + std::to_string(GameThreadFrameNumber));
 
-        object.move(glm::vec2(0.0001f, 0.0001f));
+//        float moveDistance = 0.0001f * FPS_MS;
+//        object.move(glm::vec2(moveDistance, moveDistance));
 
-        handleInput();
-        gameThreadFrame++;
+        handleInput(inputSystem, object);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(FPS_MS));
+        GameThreadFrameNumber++;
     }
 
     return 0;
