@@ -24,6 +24,14 @@ RObject::~RObject() {
     }
 }
 
+void RObject::move(const glm::vec2& offsetPos) {
+    for(int i = 0; i < 4; i++) {
+        m_Geometry[i].pos.x += offsetPos.x;
+        m_Geometry[i].pos.y += offsetPos.y;
+    }
+    m_NeedUpdateBuffers = true;
+}
+
 void RObject::createGeometry() {
     m_Geometry = new Vertex[4];
 
@@ -102,6 +110,15 @@ void RObject::buildBuffers() {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void RObject::updateBuffers() {
+    if (!m_NeedUpdateBuffers)
+        return;
+    glBindBuffer(GL_ARRAY_BUFFER, m_VboID);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, m_Geometry);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    m_NeedUpdateBuffers = false;
 }
 
 void RObject::applyShader(const std::shared_ptr<Shaders>& shader) {

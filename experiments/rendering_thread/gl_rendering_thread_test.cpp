@@ -91,11 +91,15 @@ public:
                             ));
                 }
 
-                for(auto& obj : m_ObjectsScene)
+                for(auto& obj : m_ObjectsScene) {
+                    obj->updateBuffers();
                     obj->render();
+                }
+
 
                 // swap buffers and draw everything on the screen
                 SDL_GL_SwapWindow(window);
+                m_FrameRendered++;
             }
 
             Logger::info("Rendering thread: QUIT");
@@ -152,6 +156,8 @@ public:
         m_Mutex.unlock();
     }
 
+    [[nodiscard]] long getRenderedFrame() const { return m_FrameRendered; }
+
 protected:
     SDL_Window *m_Window;
     SDL_GLContext m_GlContext;
@@ -164,6 +170,8 @@ protected:
 
     std::vector<RObject*> m_ObjectsScene;
     std::deque<RObject*> m_ObjectsQueue;
+
+    long m_FrameRendered {0};
 };
 
 std::shared_ptr<class Logger> Logger::m_Instance = nullptr;
@@ -186,6 +194,8 @@ void handleInput() {
     }
 }
 
+
+
 int main() {
 
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -203,16 +213,24 @@ int main() {
     if (!window)
         Logger::info("Couldn't create window, SDL_CreateWindow() returned nullptr");
 
-    RObject object(glm::vec2(0, 0), glm::vec2(0.5, 2));
+    RObject object(glm::vec2(0, 0), glm::vec2(0.05f, 0.05f));
+
+    long gameThreadFrame = 0;
 
     RenderingThread renderingThread(window);
-
     renderingThread.startRenderingLoop();
-
     renderingThread.addObject(&object);
 
     while (gameState != GameState::EXIT) {
+        Logger::info("Rendered frame = "
+                    + std::to_string(renderingThread.getRenderedFrame()) +
+                    " | Game thread frame = "
+                    + std::to_string(gameThreadFrame));
+
+        object.move(glm::vec2(0.0001f, 0.0001f));
+
         handleInput();
+        gameThreadFrame++;
     }
 
     return 0;
