@@ -1,5 +1,5 @@
-#ifndef COLLIDERGAME_OBJECT_H
-#define COLLIDERGAME_OBJECT_H
+#ifndef COLLIDERGAME_ROBJECT_H
+#define COLLIDERGAME_ROBJECT_H
 
 #include <gl/glew.h>
 #include <glm.hpp>
@@ -7,12 +7,12 @@
 #include "Shaders.h"
 #include <memory>
 
-class Object {
+class RObject {
 public:
-    Object();
-    Object(const glm::vec2& pos, const glm::vec2& size);
+    RObject();
+    RObject(const glm::vec2& pos, const glm::vec2& size);
 
-    virtual ~Object();
+    virtual ~RObject();
 
     void applyShader(const std::shared_ptr<Shaders>& shader);
 

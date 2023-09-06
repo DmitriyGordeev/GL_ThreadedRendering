@@ -11,7 +11,7 @@
 #include "Shaders.h"
 #include "Vertex.h"
 #include "Camera.h"
-#include "Object.h"
+#include "RObject.h"
 
 using std::cout;
 using std::endl;
@@ -79,7 +79,7 @@ public:
                             m_ObjectsScene.size()
                     ));
 
-                    Object* obj = m_ObjectsQueue.front();
+                    RObject* obj = m_ObjectsQueue.front();
                     obj->buildBuffers();
                     obj->applyShader(m_Shader);
                     obj->render();
@@ -146,7 +146,7 @@ public:
         }
     }
 
-    void addObject(Object* object) {
+    void addObject(RObject* object) {
         m_Mutex.lock();
         m_ObjectsQueue.push_back(object);
         m_Mutex.unlock();
@@ -162,8 +162,8 @@ protected:
     bool m_Running {false};
     std::mutex m_Mutex;
 
-    std::vector<Object*> m_ObjectsScene;
-    std::deque<Object*> m_ObjectsQueue;
+    std::vector<RObject*> m_ObjectsScene;
+    std::deque<RObject*> m_ObjectsQueue;
 };
 
 std::shared_ptr<class Logger> Logger::m_Instance = nullptr;
@@ -203,7 +203,7 @@ int main() {
     if (!window)
         Logger::info("Couldn't create window, SDL_CreateWindow() returned nullptr");
 
-    Object object(glm::vec2(0, 0), glm::vec2(0.5, 2));
+    RObject object(glm::vec2(0, 0), glm::vec2(0.5, 2));
 
     RenderingThread renderingThread(window);
 

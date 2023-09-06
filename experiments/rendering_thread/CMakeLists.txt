@@ -6,7 +6,7 @@ add_executable(RenderingThread
         ${UTILS_DIR}/picoPNG.cpp
         ${UTILS_DIR}/IO.cpp
         ${CORE_DIR}/TextureLoader.cpp
-        ${CORE_DIR}/Object.cpp)
+        RObject.cpp)
 
 target_link_libraries(RenderingThread
         ${OPENGL_LIBRARIES}
