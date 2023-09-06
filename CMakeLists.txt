@@ -44,6 +44,7 @@ link_directories(thirdparty/SDL2-2.0.12/lib/x64/)
 link_directories(thirdparty/glew-1.9.0-win64/glew-1.9.0/lib)
 
 add_subdirectory(test/)
+add_subdirectory(experiments/)
 
 # 6. Create executable
 add_executable(ColliderGame main.cpp ${SRC})
@@ -70,20 +71,5 @@ target_link_libraries(TestGL
         glew32s.lib)
 
 
-# ========== gl_rendering_thread_test ===============
-add_executable(RenderingThread gl_rendering_thread_test.cpp
-        core/Shaders.cpp
-        utils/Logger.cpp
-        core/Camera.cpp
-        utils/picoPNG.cpp
-        utils/IO.cpp
-        core/TextureLoader.cpp
-        core/Object.cpp)
-target_link_libraries(RenderingThread
-        ${OPENGL_LIBRARIES}
-        SDL2.lib
-        SDL2main.lib
-        glew32.lib
-        glew32s.lib)
 
 

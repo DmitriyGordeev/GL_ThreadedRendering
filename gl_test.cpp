@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 #include <gl/glew.h>
 #include <SDL.h>
 #undef main
@@ -171,7 +172,7 @@ int main() {
     glVertexAttribPointer(uvAttr, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)12);
     glEnableVertexAttribArray(uvAttr);
 
-    delete[] m_Geometry;
+    // delete[] m_Geometry; m_Geometry = nullptr;
 
     // =====================================================================================
     // Send texture to Uniform
@@ -187,8 +188,24 @@ int main() {
 
     // =====================================================================================
     // Render loop
+    long long lastFrameMillis = 0;
     while(gameState != GameState::EXIT) {
+        float dt = (float)(std::chrono::system_clock::now().time_since_epoch().count()
+                        - lastFrameMillis) / 10000;
+
+        Logger::info("delta time = " + std::to_string(dt));
+
         inputSystem();
+
+        // Updating geometry position
+//        m_Geometry[0].pos.x += 0.0001f;
+//        m_Geometry[1].pos.x += 0.0001f;
+//        m_Geometry[2].pos.x += 0.0001f;
+//        m_Geometry[3].pos.x += 0.0001f;
+//        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, m_Geometry);
+//        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
         glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -201,6 +218,10 @@ int main() {
 
         // swap buffers and draw everything on the screen
         SDL_GL_SwapWindow(window);
+
+
+
+        lastFrameMillis = std::chrono::system_clock::now().time_since_epoch().count();
     }
 
     return 0;

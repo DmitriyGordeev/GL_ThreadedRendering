@@ -1,7 +1,7 @@
 #include <iostream>
 #include <thread>
-#include <gl/glew.h>
-#include <SDL.h>
+#include "GL/glew.h"
+#include "SDL.h"
 #include <mutex>
 #include <deque>
 
@@ -136,9 +136,9 @@ public:
 
         m_Shader = std::make_shared<Shaders>();
         try {
-            m_Shader->compile("../shaders/test_vert.vs", "../shaders/test_frag.fs");
+            m_Shader->compile("../../../shaders/test_vert.vs", "../../../shaders/test_frag.fs");
             m_Shader->link();
-            m_Shader->loadTexture("../textures/box.png");
+            m_Shader->loadTexture("../../../textures/box.png");
         }
         catch (const std::exception &e) {
             Logger::error(e.what());
@@ -185,8 +185,6 @@ void handleInput() {
         }
     }
 }
-
-
 
 int main() {
 
