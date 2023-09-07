@@ -14,6 +14,8 @@ public:
 
     virtual ~Object();
 
+    void move(const glm::vec2& offsetPos);
+
     void applyShader(const std::shared_ptr<Shaders>& shader);
 
     void render();
@@ -21,6 +23,8 @@ public:
     void setObjectID(unsigned long id) { m_ObjectID = id; }
 
     void buildBuffers();
+
+    void updateBuffers();
 
 protected:
     void createGeometry();
@@ -40,6 +44,7 @@ protected:
     std::weak_ptr<Shaders> m_ShaderRef;
 
     unsigned long m_ObjectID {0};
+    bool m_NeedUpdateBuffers {false};
 };
 
 

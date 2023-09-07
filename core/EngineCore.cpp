@@ -9,8 +9,8 @@
 EngineCore::EngineCore() {
     SDL_Init(SDL_INIT_EVERYTHING);
     m_InputSystem = std::make_shared<InputSystem>();
-//    m_Shaders = std::make_shared<Shaders>();
     m_Camera = std::make_shared<Camera>();
+
 }
 
 EngineCore::~EngineCore() {
@@ -19,7 +19,7 @@ EngineCore::~EngineCore() {
 
 
 void EngineCore::createWindow(int width, int height) {
-    m_Window = SDL_CreateWindow(
+    SDL_Window* window = SDL_CreateWindow(
         "ColliderGame",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
@@ -27,52 +27,54 @@ void EngineCore::createWindow(int width, int height) {
         height,
         SDL_WINDOW_OPENGL);
 
-    if (!m_Window)
+    if (!window)
         Logger::info("Couldn't create window, SDL_CreateWindow() returned nullptr");
 
-    // try to create and prepare context
-    try {
-        GLContext::createContext(m_Window);
-    }
-    catch(const std::exception& e) {
-        Logger::error(e.what());
-        m_GameStatus = GameState::EXIT;
-    }
+    m_RenderThread = std::make_shared<RenderingThread>(window);
 
-    GLenum error = glewInit();
-    if (error != GLEW_OK) {
-        Logger::error("Could not initialize glew");
-        m_GameStatus = GameState::EXIT;
-    }
+//    // try to create and prepare context
+//    try {
+//        GLContext::createContext(m_Window);
+//    }
+//    catch(const std::exception& e) {
+//        Logger::error(e.what());
+//        m_GameState = GameState::EXIT;
+//    }
+//
+//    GLenum error = glewInit();
+//    if (error != GLEW_OK) {
+//        Logger::error("Could not initialize glew");
+//        m_GameState = GameState::EXIT;
+//    }
+//
+//    // Create shaders
+//    try {
+//        // todo: ini файл со всеми путями? - передать в качестве аргумента?
+//        std::shared_ptr<Shaders> shader(new Shaders());
+//        shader->compile("../shaders/shader.vs", "../shaders/shader.fs");
+//        shader->link();
+//        shader->loadTexture("../textures/box.png");
+//        m_Shaders.push_back(std::move(shader));
+//
+//        shader = std::make_shared<Shaders>();
+//        shader->compile("../shaders/shader_2.vs", "../shaders/shader_2.fs");
+//        shader->link();
+//        shader->loadTexture("../textures/circle.png");
+//        m_Shaders.push_back(std::move(shader));
+//    }
+//    catch(const std::exception& e) {
+//        Logger::error(e.what());
+//        m_GameState = GameState::EXIT;
+//    }
 
-    // Create shaders
-    try {
-        // todo: ini файл со всеми путями? - передать в качестве аргумента?
-        std::shared_ptr<Shaders> shader(new Shaders());
-        shader->compile("../shaders/shader.vs", "../shaders/shader.fs");
-        shader->link();
-        shader->loadTexture("../textures/box.png");
-        m_Shaders.push_back(std::move(shader));
-
-        shader = std::make_shared<Shaders>();
-        shader->compile("../shaders/shader_2.vs", "../shaders/shader_2.fs");
-        shader->link();
-        shader->loadTexture("../textures/circle.png");
-        m_Shaders.push_back(std::move(shader));
-    }
-    catch(const std::exception& e) {
-        Logger::error(e.what());
-        m_GameStatus = GameState::EXIT;
-    }
-
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-    //  Enable Alpha Blend
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    //  Anti-Aliasing:
-    glEnable(GL_MULTISAMPLE);
+//    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+//
+//    //  Enable Alpha Blend
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
+//    //  Anti-Aliasing:
+//    glEnable(GL_MULTISAMPLE);
 
 
     // ==============================================================================
@@ -85,6 +87,8 @@ void EngineCore::createWindow(int width, int height) {
     m_Scene->createObject<Object>(m_Shaders[1],
                                   glm::vec2(100, 100),
                                   glm::vec2(50, 50));
+
+    TODO: добавить объекты в Render Thread
 }
 
 
@@ -95,7 +99,7 @@ void EngineCore::updateInputSystem() {
     while(SDL_PollEvent(&event)) {
         switch(event.type) {
             case SDL_QUIT:
-                m_GameStatus = GameState::EXIT;
+                m_GameState = GameState::EXIT;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -123,7 +127,7 @@ void EngineCore::updateInputSystem() {
                 switch (event.window.event) {
                     case SDL_WINDOWEVENT_CLOSE:   // exit game
                         Logger::info("Quit pressed");
-                        m_GameStatus = GameState::EXIT;
+                        m_GameState = GameState::EXIT;
                         break;
                     default:
                         break;
@@ -173,7 +177,7 @@ void EngineCore::handleKeyBindings() {
 
 void EngineCore::gameLoop() {
     m_LastFrameTimeMillis = std::chrono::system_clock::now().time_since_epoch().count();
-    while(m_GameStatus != GameState::EXIT) {
+    while(m_GameState != GameState::EXIT) {
 
         // Calculate time since the previous frame
         long long dt = (std::chrono::system_clock::now().time_since_epoch().count()
@@ -188,6 +192,8 @@ void EngineCore::gameLoop() {
 
         // should be executed at the end of the loop
         m_LastFrameTimeMillis = std::chrono::system_clock::now().time_since_epoch().count();
+
+        m_GameThreadFrame++;
     }
 }
 

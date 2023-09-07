@@ -73,6 +73,8 @@ public:
 
             prepareCanvas();
 
+            while(!m_Running) {Logger::info("Blocked");}
+
             // Rendering loop
             while (gameState != GameState::EXIT) {
                 if (m_FrameRendered >= GameThreadFrameNumber)
@@ -104,7 +106,6 @@ public:
                     obj->updateBuffers();
                     obj->render();
                 }
-
 
                 // swap buffers and draw everything on the screen
                 SDL_GL_SwapWindow(window);
@@ -255,9 +256,6 @@ int main() {
                     + std::to_string(renderingThread.getRenderedFrame()) +
                     " | Game thread frame = "
                     + std::to_string(GameThreadFrameNumber));
-
-//        float moveDistance = 0.0001f * FPS_MS;
-//        object.move(glm::vec2(moveDistance, moveDistance));
 
         handleInput(inputSystem, object);
 

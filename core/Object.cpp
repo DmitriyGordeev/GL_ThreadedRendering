@@ -24,6 +24,14 @@ Object::~Object() {
     }
 }
 
+void Object::move(const glm::vec2& offsetPos) {
+    for(int i = 0; i < 4; i++) {
+        m_Geometry[i].pos.x += offsetPos.x;
+        m_Geometry[i].pos.y += offsetPos.y;
+    }
+    m_NeedUpdateBuffers = true;
+}
+
 void Object::createGeometry() {
     m_Geometry = new Vertex[4];
 
@@ -102,6 +110,15 @@ void Object::buildBuffers() {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Object::updateBuffers() {
+    if (!m_NeedUpdateBuffers)
+        return;
+    glBindBuffer(GL_ARRAY_BUFFER, m_VboID);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4, m_Geometry);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    m_NeedUpdateBuffers = false;
 }
 
 void Object::applyShader(const std::shared_ptr<Shaders>& shader) {

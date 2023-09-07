@@ -14,7 +14,7 @@ public:
 
     virtual ~RObject();
 
-    void move(const glm::vec2& newPos);
+    void move(const glm::vec2& offsetPos);
 
     void applyShader(const std::shared_ptr<Shaders>& shader);
 
