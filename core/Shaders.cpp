@@ -5,12 +5,15 @@
 #include <fstream>
 #include "TextureLoader.h"
 
-Shaders::Shaders() = default;
+Shaders::Shaders(std::string vertexShader,
+                 std::string fragmentShader) :
+        m_VertexShaderFilePath(std::move(vertexShader)),
+        m_FragmentShaderFilePath(std::move(fragmentShader)) {}
 
 Shaders::~Shaders() = default;
 
 
-void Shaders::compile(const std::string& vertexShader, const std::string& pixelShader)
+void Shaders::compile()
 {
     // Create empty program handle
     m_ShaderProgramID = glCreateProgram();
@@ -26,8 +29,8 @@ void Shaders::compile(const std::string& vertexShader, const std::string& pixelS
         Logger::info("Error: Pixel Shader failed to be created!");
 
     // Compile shaders
-    compileSingleShader(vertexShader, m_VertexShaderID);
-    compileSingleShader(pixelShader, m_FragShaderID);
+    compileSingleShader(m_VertexShaderFilePath, m_VertexShaderID);
+    compileSingleShader(m_FragmentShaderFilePath, m_FragShaderID);
 }
 
 void Shaders::link() const
@@ -90,6 +93,9 @@ void Shaders::setupAttributes() {
 
 bool Shaders::loadTexture(const std::string& path) {
     m_TextureID = TextureLoader::loadTexture(path);
+
+//    m_ShaderTextureLoadedPromise.set_value(true);
+
     return (m_TextureID != 0);
 }
 
@@ -133,4 +139,9 @@ void Shaders::compileSingleShader(const std::string& shaderFilename, GLuint id)
         std::printf("%s\n", &(errorLog[0]));
         throw std::runtime_error("Shader" + shaderFilename + " failed to compile");
     }
+}
+
+void Shaders::blockUntilShaderLoaded() {
+    m_ShaderLoadedPromise.get_future().get();
+//    m_ShaderTextureLoadedPromise.get_future().get();
 }

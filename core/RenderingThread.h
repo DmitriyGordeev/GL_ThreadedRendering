@@ -29,11 +29,13 @@ public:
     void startRenderingLoop();
     void stopRenderingLoop();
 
-//    void createShaders();
-
-    const std::shared_ptr<Shaders>& addShader(
+    /** Schedules shaders to be loaded and setup
+     * inside rendering thread where GL context is living */
+    std::shared_ptr<Shaders> addShader(
             const std::string& vertexShaderPath,
             const std::string& fragmentShaderPath);
+
+    void processShaderQueue();
 
     void addObject(const std::shared_ptr<Object>& object);
     void processQueue();
@@ -44,6 +46,8 @@ protected:
     SDL_GLContext m_GlContext;
     std::thread m_Thread;
     std::exception_ptr m_ExceptionPtr;
+
+    std::deque<std::shared_ptr<Shaders>> m_ShadersQueue;
     std::vector<std::shared_ptr<Shaders>> m_Shaders;
 
     bool m_Running {false};

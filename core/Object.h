@@ -16,7 +16,11 @@ public:
 
     void move(const glm::vec2& offsetPos);
 
-    void applyShader(const std::shared_ptr<Shaders>& shader);
+    void setShader(const std::shared_ptr<Shaders>& shader);
+
+    void confirmShader();
+
+//    void applyShader(const std::shared_ptr<Shaders>& shader);
 
     void render();
 

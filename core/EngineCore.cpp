@@ -96,12 +96,11 @@ void EngineCore::createWindow(int width, int height) {
         m_GameState = GameState::EXIT;
     }
 
-
-
     // ==============================================================================
     // prepare scene
     m_Camera->init(width, height);
     m_Scene = std::make_shared<Scene>();
+
 
     // Create and add objects to the scene
     m_Scene->createObject<Object>(s1);
@@ -110,8 +109,8 @@ void EngineCore::createWindow(int width, int height) {
                                   glm::vec2(50, 50));
 
 
-    // Add objects from scene to objects queue to
-    // be processed by rendering thread
+    // Add objects from scene to rendering thread's
+    // objects queue to be processed and drawed
     m_RenderThread->addObjectsFromScene(m_Scene);
 }
 
@@ -224,6 +223,8 @@ void EngineCore::gameLoop() {
 
         m_GameThreadFrame++;
     }
+
+    m_RenderThread->stopRenderingLoop();
 }
 
 

@@ -121,7 +121,7 @@ void Object::updateBuffers() {
     m_NeedUpdateBuffers = false;
 }
 
-void Object::applyShader(const std::shared_ptr<Shaders>& shader) {
+void Object::setShader(const std::shared_ptr<Shaders>& shader) {
     if (!shader) {
         Logger::info("Object::applyShader() shader is nullptr");
         return;
@@ -140,18 +140,26 @@ void Object::applyShader(const std::shared_ptr<Shaders>& shader) {
         return;
     }
 
-    if (m_VaoID == 0) {
-        Logger::error("Object::buildBuffer() seems wasn't called before applying a shader");
-        return;
-    }
-
     // Save reference to associated material for this object
     m_ShaderRef = shader;
+}
+
+void Object::confirmShader() {
+    if (m_VaoID == 0) {
+        Logger::error("Object::buildBuffer() should've been called before applying a shader");
+        return;
+    }
 
     glBindVertexArray(m_VaoID);
     glBindBuffer(GL_ARRAY_BUFFER, m_VboID);
 
-    shader->setupAttributes();
+    auto shaderRef = m_ShaderRef.lock();
+    if (!shaderRef) {
+        Logger::error("[Object::confirmShader()] shader is null");
+        return;
+    }
+
+    shaderRef->setupAttributes();
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);

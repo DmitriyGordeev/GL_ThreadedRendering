@@ -4,13 +4,14 @@
 #include <gl/glew.h>
 #include <string>
 #include <vector>
+#include <future>
 
 class Shaders {
 public:
-    Shaders();
+    Shaders(std::string vertexShader, std::string fragmentShader);
     ~Shaders();
 
-    void compile(const std::string& vertexShader, const std::string& pixelShader);
+    void compile();
     void link() const;
 
     /** Tells opengl how vertex attributes (pos, color, uv, ...)
@@ -28,10 +29,17 @@ public:
 
     [[nodiscard]] GLuint getTextureID() const { return m_TextureID; }
 
+    void blockUntilShaderLoaded();
+
+    std::promise<bool> m_ShaderLoadedPromise;
+
 protected:
     static void compileSingleShader(const std::string& shaderFilename, GLuint id);
 
 protected:
+    std::string m_VertexShaderFilePath;
+    std::string m_FragmentShaderFilePath;
+
     GLuint m_ShaderProgramID {0};
     GLuint m_VertexShaderID {0};
     GLuint m_FragShaderID {0};
@@ -41,6 +49,9 @@ protected:
     GLint m_UVAttribID {-1};
 
     GLuint m_TextureID {0};
+
+
+//    std::promise<bool> m_ShaderTextureLoadedPromise;
 };
 
 

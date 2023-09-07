@@ -28,8 +28,12 @@ public:
             return 0;
         }
 
-        std::shared_ptr<Object> pObj = std::make_shared<O>(args...);
-        pObj->applyShader(shader);
+        shader->blockUntilShaderLoaded();
+        Logger::info("Shader has been loaded, set to Object");
+
+        // todo: std::forward<Args>
+        std::shared_ptr<Object> pObj = std::make_shared<O>(std::forward<Args>(args)...);
+        pObj->setShader(shader);
         return add(pObj);
     }
 
