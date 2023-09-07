@@ -33,6 +33,10 @@ public:
         return add(pObj);
     }
 
+    [[nodiscard]] const std::map<unsigned long, std::shared_ptr<Object>>& getObjectsMap() const {
+        return m_Objects;
+    }
+
 protected:
     std::map<unsigned long, std::shared_ptr<Object>> m_Objects;
     unsigned long m_GlobalObjectCounterID {0};

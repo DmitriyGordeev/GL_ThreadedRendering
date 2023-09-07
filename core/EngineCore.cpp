@@ -77,18 +77,42 @@ void EngineCore::createWindow(int width, int height) {
 //    glEnable(GL_MULTISAMPLE);
 
 
+
+    // ------------------------------------------------------------------------------
+    // Load shaders to RenderingThread
+    std::shared_ptr<Shaders> s1;
+    std::shared_ptr<Shaders> s2;
+    try {
+        s1 = m_RenderThread
+                ->addShader("../shaders/shader.vs", "../shaders/shader.fs");
+        s1->loadTexture("../textures/box.png");
+
+        s2 = m_RenderThread
+                ->addShader("../shaders/shader_2.vs", "../shaders/shader_2.fs");
+        s2->loadTexture("../textures/circle.png");
+    }
+    catch(const std::exception& e) {
+        Logger::error(e.what());
+        m_GameState = GameState::EXIT;
+    }
+
+
+
     // ==============================================================================
     // prepare scene
     m_Camera->init(width, height);
     m_Scene = std::make_shared<Scene>();
 
     // Create and add objects to the scene
-    m_Scene->createObject<Object>(m_Shaders[0]);
-    m_Scene->createObject<Object>(m_Shaders[1],
+    m_Scene->createObject<Object>(s1);
+    m_Scene->createObject<Object>(s2,
                                   glm::vec2(100, 100),
                                   glm::vec2(50, 50));
 
-    TODO: добавить объекты в Render Thread
+
+    // Add objects from scene to objects queue to
+    // be processed by rendering thread
+    m_RenderThread->addObjectsFromScene(m_Scene);
 }
 
 
@@ -177,6 +201,11 @@ void EngineCore::handleKeyBindings() {
 
 void EngineCore::gameLoop() {
     m_LastFrameTimeMillis = std::chrono::system_clock::now().time_since_epoch().count();
+
+    // Start rendering thread
+    m_RenderThread->startRenderingLoop();
+
+    // Start game loop in the game thread (main thread)
     while(m_GameState != GameState::EXIT) {
 
         // Calculate time since the previous frame
@@ -185,7 +214,7 @@ void EngineCore::gameLoop() {
 
         updateInputSystem();
         m_Camera->update();
-        renderFrame();
+        updateGameLogicForNextFrame();
 
         // todo: если на сцене происходит много всего, то этот блок не имеет смысла
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
@@ -198,28 +227,27 @@ void EngineCore::gameLoop() {
 }
 
 
-void EngineCore::renderFrame() {
+void EngineCore::updateGameLogicForNextFrame() {
 
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Get updated camera matrix
-    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
-
-    // 1. Update uniforms for all shaders
-    for(auto& shader : m_Shaders) {
-        glUseProgram(shader->getShaderProgramId());
-
-        // MVP matrix to uniforms
-        GLint pLocation = shader->getUniformLocation("P");
-        glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
-    }
-
-    // 2. Render objects
-    m_Scene->render();
-
-    // swap buffers and draw everything on the screen
-    SDL_GL_SwapWindow(m_Window);
+//    glClearDepth(1.0f);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//    // Get updated camera matrix
+//    glm::mat4 cameraMatrix = m_Camera->getCameraMatrix();
+//
+//    // 1. Update uniforms for all shaders
+//    for(auto& shader : m_Shaders) {
+//        glUseProgram(shader->getShaderProgramId());
+//
+//        // MVP matrix to uniforms
+//        GLint pLocation = shader->getUniformLocation("P");
+//        glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+//    }
+//
+//    // 2. Render objects
+//    m_Scene->render();
+//
+//    // swap buffers and draw everything on the screen
+//    SDL_GL_SwapWindow(m_Window);
 }
-
 

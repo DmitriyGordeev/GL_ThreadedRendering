@@ -36,11 +36,16 @@ RenderingThread::RenderingThread(SDL_Window *window) {
         }
 
         Logger::info("Create shader");
-        createShader();
 
         prepareCanvas();
 
-        while(!m_Running) {}
+        // warmup waiting cycle
+        while(!m_Running) {
+
+            // if objects have been added, but game thread hasn't ordered to start the game,
+            // we can process them before rendering loop even starts
+            processQueue();
+        }
 
         // Rendering loop
         while (!m_ShouldStopRender) {
@@ -62,14 +67,7 @@ RenderingThread::RenderingThread(SDL_Window *window) {
                         m_ObjectsScene.size()
                 ));
 
-                // todo: Нужен loop по всем необработанным объектам в очереди
-                Object* obj = m_ObjectsQueue.front();
-                obj->buildBuffers();
-                obj->applyShader(m_Shader);
-                obj->render();
-
-                m_ObjectsScene.push_back(obj);  // add object to the scene's array
-                m_ObjectsQueue.pop_front();     // remove object from queue after processing it
+                processQueue();
 
                 Logger::info("Queue size after processing = " + std::to_string(
                         m_ObjectsScene.size()
@@ -120,25 +118,63 @@ void RenderingThread::startRenderingLoop() {
 
 void RenderingThread::stopRenderingLoop() { m_ShouldStopRender = true; }
 
-// todo: несколько шейдеров
-void RenderingThread::createShader() {
-    if (m_Shader)
-        return;
+//// todo: несколько шейдеров
+//void RenderingThread::createShader() {
+////    if (m_Shaders)
+////        return;
+////
+////    m_Shaders = std::make_shared<Shaders>();
+////    try {
+////        m_Shaders->compile("../../../shaders/test_vert.vs", "../../../shaders/test_frag.fs");
+////        m_Shaders->link();
+////        m_Shaders->loadTexture("../../../textures/box.png");
+////    }
+////    catch (const std::exception &e) {
+////        Logger::error(e.what());
+////        m_ShouldStopRender = true;
+////    }
+//}
 
-    m_Shader = std::make_shared<Shaders>();
-    try {
-        m_Shader->compile("../../../shaders/test_vert.vs", "../../../shaders/test_frag.fs");
-        m_Shader->link();
-        m_Shader->loadTexture("../../../textures/box.png");
-    }
-    catch (const std::exception &e) {
-        Logger::error(e.what());
-        m_ShouldStopRender = true;
-    }
+const std::shared_ptr<Shaders>& RenderingThread::addShader(
+        const std::string& vertexShaderPath,
+        const std::string& fragmentShaderPath) {
+
+    std::shared_ptr<Shaders> shader(new Shaders());
+    shader->compile(vertexShaderPath, fragmentShaderPath);
+    shader->link();
+    m_Shaders.push_back(std::move(shader));
+    return m_Shaders.back();
 }
 
-void RenderingThread::addObject(Object* object) {
+void RenderingThread::addObject(const std::shared_ptr<Object>& object) {
     m_Mutex.lock();
     m_ObjectsQueue.push_back(object);
     m_Mutex.unlock();
+}
+
+void RenderingThread::processQueue() {
+    std::scoped_lock<std::mutex> scopedLock(m_Mutex);
+
+    if (m_ObjectsQueue.empty())
+        return;
+
+    for(auto itr = m_ObjectsQueue.begin(); itr != m_ObjectsQueue.end(); ++itr) {
+        auto obj = m_ObjectsQueue.front();
+        if (!obj)
+            continue;
+        obj->buildBuffers();
+        m_ObjectsScene.push_back(obj);
+    }
+    m_ObjectsQueue.clear();
+}
+
+void RenderingThread::addObjectsFromScene(const std::shared_ptr<Scene>& scene) {
+    if (!scene) {
+        Logger::error("[RenderingThread::addObjectsFromScene] Scene is null");
+        return;
+    }
+
+    auto sceneObjects = scene->getObjectsMap();
+    for(auto itr = sceneObjects.begin(); itr != sceneObjects.end(); ++itr)
+        addObject(itr->second);
 }

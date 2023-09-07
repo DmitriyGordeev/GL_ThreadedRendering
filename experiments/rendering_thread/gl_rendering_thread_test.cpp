@@ -73,7 +73,10 @@ public:
 
             prepareCanvas();
 
-            while(!m_Running) {Logger::info("Blocked");}
+            while(!m_Running) {
+                Logger::info("Warmup Queue size = " + std::to_string(m_ObjectsQueue.size()));
+                processQueue();
+            }
 
             // Rendering loop
             while (gameState != GameState::EXIT) {
@@ -81,24 +84,19 @@ public:
                     continue;
 
                 Logger::info("Render loop");
-                glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+                glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
 
                 // Process added objects
                 if (!m_ObjectsQueue.empty()) {
                     Logger::info("Queue size before processing = " + std::to_string(
-                            m_ObjectsScene.size()
+                            m_ObjectsQueue.size()
                     ));
 
-                    RObject* obj = m_ObjectsQueue.front();
-                    obj->buildBuffers();
-                    obj->applyShader(m_Shader);
-                    obj->render();
-                    m_ObjectsScene.push_back(obj);
-                    m_ObjectsQueue.pop_front();
+                    processQueue();
 
                     Logger::info("Queue size after processing = " + std::to_string(
-                            m_ObjectsScene.size()
+                            m_ObjectsQueue.size()
                             ));
                 }
 
@@ -140,21 +138,21 @@ public:
     }
 
     void prepareCanvas() {
-        glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_MULTISAMPLE);
     }
 
     void createShader() {
-        if (m_Shader)
+        if (m_Shaders)
             return;
 
-        m_Shader = std::make_shared<Shaders>();
+        m_Shaders = std::make_shared<Shaders>();
         try {
-            m_Shader->compile("../../../shaders/test_vert.vs", "../../../shaders/test_frag.fs");
-            m_Shader->link();
-            m_Shader->loadTexture("../../../textures/box.png");
+            m_Shaders->compile("../../../shaders/test_vert.vs", "../../../shaders/test_frag.fs");
+            m_Shaders->link();
+            m_Shaders->loadTexture("../../../textures/box.png");
         }
         catch (const std::exception &e) {
             Logger::error(e.what());
@@ -168,6 +166,23 @@ public:
         m_Mutex.unlock();
     }
 
+    void processQueue() {
+        std::scoped_lock<std::mutex> scopedLock(m_Mutex);
+
+        if (m_ObjectsQueue.empty())
+            return;
+
+        for(auto itr = m_ObjectsQueue.begin(); itr != m_ObjectsQueue.end(); ++itr) {
+            RObject* obj = m_ObjectsQueue.front();
+            if (!obj)
+                continue;
+            obj->buildBuffers();
+            obj->applyShader(m_Shaders);
+            m_ObjectsScene.push_back(obj);
+        }
+        m_ObjectsQueue.clear();
+    }
+
     [[nodiscard]] long getRenderedFrame() const { return m_FrameRendered; }
 
 protected:
@@ -175,7 +190,7 @@ protected:
     SDL_GLContext m_GlContext;
     std::thread m_Thread;
     std::exception_ptr m_ExceptionPtr;
-    std::shared_ptr<Shaders> m_Shader {nullptr};
+    std::shared_ptr<Shaders> m_Shaders {nullptr};
 
     bool m_Running {false};
     std::mutex m_Mutex;
@@ -245,11 +260,11 @@ int main() {
 
     InputSystem inputSystem;
 
-    RObject object(glm::vec2(0, 0), glm::vec2(0.05f, 0.05f));
+    RObject object(glm::vec2(0, 0), glm::vec2(0.2f, 0.2f));
 
     RenderingThread renderingThread(window);
-    renderingThread.startRenderingLoop();
     renderingThread.addObject(&object);
+    renderingThread.startRenderingLoop();
 
     while (gameState != GameState::EXIT) {
         Logger::info("Rendered frame = "

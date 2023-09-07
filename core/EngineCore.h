@@ -16,6 +16,8 @@
 
 enum class GameState {RUNNING, EXIT};
 
+class RenderingThread;
+
 class EngineCore {
 public:
     EngineCore();
@@ -33,9 +35,9 @@ public:
     /** Stores execution of the main game loop */
     void gameLoop();
 
-    void renderFrame();
+    void updateGameLogicForNextFrame();
 
-    [[nodiscard]] long getCurrentGameThreadFrame() const { m_GameThreadFrame; }
+    [[nodiscard]] long getCurrentGameThreadFrame() const { return m_GameThreadFrame; }
 
     [[nodiscard]] GameState getCurrentGameState() const { return m_GameState; }
 
@@ -48,7 +50,7 @@ protected:
     GameState m_GameState {GameState::RUNNING};
 
     std::shared_ptr<Camera> m_Camera;
-    std::vector<std::shared_ptr<Shaders>> m_Shaders;
+    // std::vector<std::shared_ptr<Shaders>> m_Shaders;
     std::shared_ptr<Scene> m_Scene;
 
     long m_GameThreadFrame {0};
