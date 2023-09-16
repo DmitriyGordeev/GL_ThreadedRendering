@@ -39,7 +39,6 @@ RenderingThread::RenderingThread(SDL_Window *window) {
 
         prepareCanvas();
 
-
         // warmup waiting cycle
         while(!m_Running) {
             processShaderQueue();
@@ -113,9 +112,13 @@ void RenderingThread::stopRenderingLoop() { m_ShouldStopRender = true; }
 
 std::shared_ptr<Shaders> RenderingThread::addShader(
         const std::string& vertexShaderPath,
-        const std::string& fragmentShaderPath) {
+        const std::string& fragmentShaderPath,
+        const std::string& texturePath) {
 
-    std::shared_ptr<Shaders> shader(new Shaders(vertexShaderPath, fragmentShaderPath));
+    std::shared_ptr<Shaders> shader(new Shaders(vertexShaderPath,
+                                                fragmentShaderPath,
+                                                texturePath));
+
     std::scoped_lock<std::mutex> scopedLock(m_Mutex);
     m_ShadersQueue.push_back(std::move(shader));
     return m_ShadersQueue.back();
@@ -138,6 +141,7 @@ void RenderingThread::processShaderQueue() {
     for(auto itr = m_ShadersQueue.begin(); itr != m_ShadersQueue.end(); ++itr) {
         (*itr)->compile();
         (*itr)->link();
+        (*itr)->loadTexture();
         (*itr)->m_ShaderLoadedPromise.set_value(true);
         Logger::info("[processShaderQueue()] Shader main part compiled and linked");
         m_Shaders.push_back(*itr);

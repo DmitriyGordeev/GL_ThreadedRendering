@@ -8,7 +8,9 @@
 
 class Shaders {
 public:
-    Shaders(std::string vertexShader, std::string fragmentShader);
+    Shaders(std::string vertexShader,
+            std::string fragmentShader,
+            std::string texturePath);
     ~Shaders();
 
     void compile();
@@ -18,7 +20,7 @@ public:
     are aligned in a memory block of a single vertex */
     void setupAttributes();
 
-    bool loadTexture(const std::string& path);
+    bool loadTexture();
 
     [[nodiscard]] GLuint getUniformLocation(const std::string& uniformName) const;
     [[nodiscard]] GLuint getShaderProgramId() const { return m_ShaderProgramID; }
@@ -39,6 +41,7 @@ protected:
 protected:
     std::string m_VertexShaderFilePath;
     std::string m_FragmentShaderFilePath;
+    std::string m_TexturePath;
 
     GLuint m_ShaderProgramID {0};
     GLuint m_VertexShaderID {0};
@@ -49,7 +52,6 @@ protected:
     GLint m_UVAttribID {-1};
 
     GLuint m_TextureID {0};
-
 
     std::promise<bool> m_ShaderTextureLoadedPromise;
 };

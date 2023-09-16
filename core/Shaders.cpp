@@ -6,9 +6,11 @@
 #include "TextureLoader.h"
 
 Shaders::Shaders(std::string vertexShader,
-                 std::string fragmentShader) :
+                 std::string fragmentShader,
+                 std::string texturePath) :
         m_VertexShaderFilePath(std::move(vertexShader)),
-        m_FragmentShaderFilePath(std::move(fragmentShader)) {}
+        m_FragmentShaderFilePath(std::move(fragmentShader)),
+        m_TexturePath(std::move(texturePath)) {}
 
 Shaders::~Shaders() = default;
 
@@ -93,10 +95,10 @@ void Shaders::setupAttributes() {
     glEnableVertexAttribArray(m_UVAttribID);
 }
 
-bool Shaders::loadTexture(const std::string& path) {
+bool Shaders::loadTexture() {
     Logger::info("[Shader::loadTexture] started");
-    m_TextureID = TextureLoader::loadTexture(path);
-    m_ShaderTextureLoadedPromise.set_value(true);
+    m_TextureID = TextureLoader::loadTexture(m_TexturePath);
+    // m_ShaderTextureLoadedPromise.set_value(true);
 
     Logger::info("[Shaders::loadTexture()] shader texture is loaded");
     return (m_TextureID != 0);
@@ -146,5 +148,5 @@ void Shaders::compileSingleShader(const std::string& shaderFilename, GLuint id)
 
 void Shaders::blockUntilShaderLoaded() {
     m_ShaderLoadedPromise.get_future().get();
-    m_ShaderTextureLoadedPromise.get_future().get();
+//    m_ShaderTextureLoadedPromise.get_future().get();
 }

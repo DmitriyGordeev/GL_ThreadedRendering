@@ -33,7 +33,8 @@ public:
      * inside rendering thread where GL context is living */
     std::shared_ptr<Shaders> addShader(
             const std::string& vertexShaderPath,
-            const std::string& fragmentShaderPath);
+            const std::string& fragmentShaderPath,
+            const std::string& texturePath);
 
     void processShaderQueue();
 

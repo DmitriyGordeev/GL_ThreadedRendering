@@ -84,9 +84,9 @@ void EngineCore::createWindow(int width, int height) {
     std::shared_ptr<Shaders> s2;
     try {
         s1 = m_RenderThread
-                ->addShader("../shaders/shader.vs", "../shaders/shader.fs");
-        s1->loadTexture("../textures/box.png");
-
+                ->addShader("../shaders/shader.vs",
+                            "../shaders/shader.fs",
+                            "../textures/box.png");
 //        s2 = m_RenderThread
 //                ->addShader("../shaders/shader_2.vs", "../shaders/shader_2.fs");
 //        s2->loadTexture("../textures/circle.png");
