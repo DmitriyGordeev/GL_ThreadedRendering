@@ -15,6 +15,8 @@ Shaders::~Shaders() = default;
 
 void Shaders::compile()
 {
+    Logger::info("[Shader::compile()] started");
+
     // Create empty program handle
     m_ShaderProgramID = glCreateProgram();
 
@@ -92,10 +94,11 @@ void Shaders::setupAttributes() {
 }
 
 bool Shaders::loadTexture(const std::string& path) {
+    Logger::info("[Shader::loadTexture] started");
     m_TextureID = TextureLoader::loadTexture(path);
+    m_ShaderTextureLoadedPromise.set_value(true);
 
-//    m_ShaderTextureLoadedPromise.set_value(true);
-
+    Logger::info("[Shaders::loadTexture()] shader texture is loaded");
     return (m_TextureID != 0);
 }
 
@@ -143,5 +146,5 @@ void Shaders::compileSingleShader(const std::string& shaderFilename, GLuint id)
 
 void Shaders::blockUntilShaderLoaded() {
     m_ShaderLoadedPromise.get_future().get();
-//    m_ShaderTextureLoadedPromise.get_future().get();
+    m_ShaderTextureLoadedPromise.get_future().get();
 }

@@ -87,9 +87,9 @@ void EngineCore::createWindow(int width, int height) {
                 ->addShader("../shaders/shader.vs", "../shaders/shader.fs");
         s1->loadTexture("../textures/box.png");
 
-        s2 = m_RenderThread
-                ->addShader("../shaders/shader_2.vs", "../shaders/shader_2.fs");
-        s2->loadTexture("../textures/circle.png");
+//        s2 = m_RenderThread
+//                ->addShader("../shaders/shader_2.vs", "../shaders/shader_2.fs");
+//        s2->loadTexture("../textures/circle.png");
     }
     catch(const std::exception& e) {
         Logger::error(e.what());
@@ -103,10 +103,10 @@ void EngineCore::createWindow(int width, int height) {
 
 
     // Create and add objects to the scene
-    m_Scene->createObject<Object>(s1);
-    m_Scene->createObject<Object>(s2,
-                                  glm::vec2(100, 100),
-                                  glm::vec2(50, 50));
+    m_Scene->createObject<Object>(s1, glm::vec2(0, 0), glm::vec2(1.0f, 1.0f));
+//    m_Scene->createObject<Object>(s2,
+//                                  glm::vec2(100, 100),
+//                                  glm::vec2(50, 50));
 
 
     // Add objects from scene to rendering thread's

@@ -11,6 +11,7 @@ unsigned long Scene::add(const std::shared_ptr<Object>& object) {
     m_GlobalObjectCounterID++;
     object->setObjectID(m_GlobalObjectCounterID);
     m_Objects.emplace(m_GlobalObjectCounterID, object);
+    Logger::info("[Scene] object has been added to map");
     return m_GlobalObjectCounterID;
 }
 

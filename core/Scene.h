@@ -32,7 +32,7 @@ public:
         Logger::info("Shader has been loaded, set to Object");
 
         // todo: std::forward<Args>
-        std::shared_ptr<Object> pObj = std::make_shared<O>(std::forward<Args>(args)...);
+        std::shared_ptr<Object> pObj = std::make_shared<O>(args...);
         pObj->setShader(shader);
         return add(pObj);
     }

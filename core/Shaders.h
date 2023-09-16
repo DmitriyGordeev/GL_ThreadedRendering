@@ -51,7 +51,7 @@ protected:
     GLuint m_TextureID {0};
 
 
-//    std::promise<bool> m_ShaderTextureLoadedPromise;
+    std::promise<bool> m_ShaderTextureLoadedPromise;
 };
 
 

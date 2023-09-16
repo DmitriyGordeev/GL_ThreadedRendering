@@ -75,7 +75,7 @@ public:
 
             while(!m_Running) {
                 Logger::info("Warmup Queue size = " + std::to_string(m_ObjectsQueue.size()));
-                processQueue();
+                processObjectQueue();
             }
 
             // Rendering loop
@@ -93,7 +93,7 @@ public:
                             m_ObjectsQueue.size()
                     ));
 
-                    processQueue();
+                    processObjectQueue();
 
                     Logger::info("Queue size after processing = " + std::to_string(
                             m_ObjectsQueue.size()
@@ -148,9 +148,9 @@ public:
         if (m_Shaders)
             return;
 
-        m_Shaders = std::make_shared<Shaders>();
+        m_Shaders = std::make_shared<Shaders>("../../../shaders/test_vert.vs", "../../../shaders/test_frag.fs");
         try {
-            m_Shaders->compile("../../../shaders/test_vert.vs", "../../../shaders/test_frag.fs");
+            m_Shaders->compile();
             m_Shaders->link();
             m_Shaders->loadTexture("../../../textures/box.png");
         }
@@ -166,7 +166,7 @@ public:
         m_Mutex.unlock();
     }
 
-    void processQueue() {
+    void processObjectQueue() {
         std::scoped_lock<std::mutex> scopedLock(m_Mutex);
 
         if (m_ObjectsQueue.empty())

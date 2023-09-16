@@ -110,6 +110,8 @@ void Object::buildBuffers() {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    Logger::info("[Object::buildBuffers()] Object has created buffers");
 }
 
 void Object::updateBuffers() {
@@ -160,6 +162,8 @@ void Object::confirmShader() {
     }
 
     shaderRef->setupAttributes();
+
+    Logger::info("[Object::confirmShader()] object has setAttrubtes");
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);

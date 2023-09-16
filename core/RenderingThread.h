@@ -38,7 +38,7 @@ public:
     void processShaderQueue();
 
     void addObject(const std::shared_ptr<Object>& object);
-    void processQueue();
+    void processObjectQueue();
     void addObjectsFromScene(const std::shared_ptr<Scene>& scene);
 
 protected:

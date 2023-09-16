@@ -46,7 +46,9 @@ RenderingThread::RenderingThread(SDL_Window *window) {
 
             // if objects have been added, but game thread hasn't ordered to start the game,
             // we can process them before rendering loop even starts
-            processQueue();
+            processObjectQueue();
+
+            Logger::info("warmup cycle");
         }
 
         // Rendering loop
@@ -59,12 +61,12 @@ RenderingThread::RenderingThread(SDL_Window *window) {
                     continue;
             }
 
-            Logger::info("Render loop");
+            // Logger::info("Render loop");
             glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             processShaderQueue();
-            processQueue();
+            processObjectQueue();
 
             for(auto& obj : m_ObjectsScene) {
                 obj->updateBuffers();
@@ -80,8 +82,6 @@ RenderingThread::RenderingThread(SDL_Window *window) {
 
         Logger::info("Rendering thread: QUIT");
     });
-
-    Logger::info("After thread created");
 }
 
 RenderingThread::~RenderingThread() {
@@ -106,26 +106,10 @@ void RenderingThread::prepareCanvas() {
 
 void RenderingThread::startRenderingLoop() {
     m_Running = true;
+    Logger::info("[RenderingThread] m_Running = true\n");
 }
 
 void RenderingThread::stopRenderingLoop() { m_ShouldStopRender = true; }
-
-//// todo: несколько шейдеров
-//void RenderingThread::createShader() {
-////    if (m_Shaders)
-////        return;
-////
-////    m_Shaders = std::make_shared<Shaders>();
-////    try {
-////        m_Shaders->compile("../../../shaders/test_vert.vs", "../../../shaders/test_frag.fs");
-////        m_Shaders->link();
-////        m_Shaders->loadTexture("../../../textures/box.png");
-////    }
-////    catch (const std::exception &e) {
-////        Logger::error(e.what());
-////        m_ShouldStopRender = true;
-////    }
-//}
 
 std::shared_ptr<Shaders> RenderingThread::addShader(
         const std::string& vertexShaderPath,
@@ -149,10 +133,13 @@ void RenderingThread::processShaderQueue() {
     if (m_ShadersQueue.empty())
         return;
 
+    Logger::info("unprocessed shaders queue size = " + std::to_string(m_ShadersQueue.size()));
+
     for(auto itr = m_ShadersQueue.begin(); itr != m_ShadersQueue.end(); ++itr) {
         (*itr)->compile();
         (*itr)->link();
         (*itr)->m_ShaderLoadedPromise.set_value(true);
+        Logger::info("[processShaderQueue()] Shader main part compiled and linked");
         m_Shaders.push_back(*itr);
     }
 
@@ -162,14 +149,17 @@ void RenderingThread::processShaderQueue() {
 void RenderingThread::addObject(const std::shared_ptr<Object>& object) {
     m_Mutex.lock();
     m_ObjectsQueue.push_back(object);
+    Logger::info("[RenderingThread::addObject()] object added to queue of RT, queue size = " + std::to_string(m_ObjectsQueue.size()));
     m_Mutex.unlock();
 }
 
-void RenderingThread::processQueue() {
+void RenderingThread::processObjectQueue() {
     std::scoped_lock<std::mutex> scopedLock(m_Mutex);
 
     if (m_ObjectsQueue.empty())
         return;
+
+    Logger::info("unprocessed object queue size = " + std::to_string(m_ObjectsQueue.size()));
 
     for(auto itr = m_ObjectsQueue.begin(); itr != m_ObjectsQueue.end(); ++itr) {
         auto obj = m_ObjectsQueue.front();
