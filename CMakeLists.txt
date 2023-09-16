@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(ColliderGame)
+project(GL_ThreadedRendering)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -47,8 +47,8 @@ add_subdirectory(test/)
 add_subdirectory(experiments/)
 
 # 6. Create executable
-add_executable(ColliderGame main.cpp ${SRC})
-target_link_libraries(ColliderGame
+add_executable(GL_ThreadedRendering main.cpp ${SRC})
+target_link_libraries(GL_ThreadedRendering
         ${OPENGL_LIBRARIES}
         SDL2.lib
         SDL2main.lib
