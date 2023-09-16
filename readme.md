@@ -7,7 +7,11 @@ some game-related logic.
 Main idea is that OpenGL's context resides in
 the RenderingThread. Game (main) thread pushes objects 
 into a rendering queue in order for rendering thread 
-to process and render them.
+to process and render them on the next update.
+
+This project shows basic usage of OpenGL - 
+and serves as my attempt 
+to better understand rendering process of Unreal Engine 5
 
 TODO:
 1. вернуть матрицу трансформаций в шейдер
